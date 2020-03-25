@@ -1,4 +1,5 @@
 @page "/"
+@using LegendOfWorlds.Engine.World
 
 <BECanvas Width="1280" Height="720" @ref="_canvasReference" ></BECanvas>
 
@@ -8,16 +9,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        this._context = await this._canvasReference.CreateCanvas2DAsync();
-
-        await this._context.SetFillStyleAsync("green");
-        await this._context.FillRectAsync(0, 0, 1000, 1000);
-
-        // await Task.Delay(5000);
-        // await this._context.ClearRectAsync(0, 0, 1000, 1000);
-
-        var derp = new LegendOfWorlds.Engine.World.World();
+        var baseCanvas = await this._canvasReference.CreateCanvas2DAsync();
+        World.Init(baseCanvas);
     }
 }
-
-
