@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\libs\minECS\minECS\minECS.csproj" />
+    <ProjectReference Include="..\libs\ecs\Leopotam.Ecs.csproj" />
   </ItemGroup>
   
 </Project>

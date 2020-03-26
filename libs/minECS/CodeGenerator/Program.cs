@@ -164,7 +164,7 @@ namespace CodeGenerator
 
             file.Add("\r\n}");
 
-            File.WriteAllLines("../../../../minECS/EntityRegistryGenerated.cs", file);
+            File.WriteAllLines("../minECS/Registry/EntityRegistryGenerated.cs", file);
 
 
             
