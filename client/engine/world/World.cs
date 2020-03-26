@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Blazor.Extensions.Canvas.Canvas2D;
 using Leopotam.Ecs;
+using FluentIL;
 
 namespace LegendOfWorlds.Engine.World {
   struct Position {
@@ -85,6 +86,48 @@ class RenderSystem : IEcsInitSystem {
         
         hello();
       ");
+
+      var typeBuilder = TypeFactory
+          .Default
+          .NewType("Health")
+          .Public();
+
+      var field = typeBuilder
+          .NewField<int>("points")
+          .Private();
+
+      var property = typeBuilder
+          .NewProperty<int>("Points")
+          .Setter(m => m
+              .Private()
+              .Body()
+              .LdArg0()
+              .LdArg1()
+              .StFld(field)
+              .Ret())
+          .Getter(m => m
+              .Public()
+              .Body()
+              .LdArg0()
+              .LdFld(field)
+              .Ret());
+
+      var setPoints = typeBuilder
+          .NewMethod("SetPoints")
+          .Public()
+          .Param<int>("points")
+          .Body(m => m
+              .LdArg0()
+              .LdArg1()
+              .Call(property.SetMethod)
+              .Ret());
+
+      var type = typeBuilder.CreateType();
+      var obj = Activator.CreateInstance(type);
+
+      // type.GetMethod("SetValue").Invoke(obj, new object[] { "Test" });
+      obj.SetPropertyValue("Points", 300);
+      Console.WriteLine(obj.GetPropertyValue("Points"));
     }
 
     public static async Task Update() {
