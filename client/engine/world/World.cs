@@ -2,10 +2,30 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Blazor.Extensions.Canvas.Canvas2D;
-using Leopotam.Ecs;
 using FluentIL;
+using MessagePack;
 
 namespace LegendOfWorlds.Engine.World {
+  [MessagePackObject]
+  public class MyClass
+  {
+      // Key attributes take a serialization index (or string name)
+      // The values must be unique and versioning has to be considered as well.
+      // Keys are described in later sections in more detail.
+      [Key(0)]
+      public int Age { get; set; }
+
+      [Key(1)]
+      public string FirstName { get; set; }
+
+      [Key(2)]
+      public string LastName { get; set; }
+
+      // All fields or properties that should not be serialized must be annotated with [IgnoreMember].
+      [IgnoreMember]
+      public string FullName { get { return FirstName + LastName; } }
+  }
+
   public class Position : Audrey.IComponent {
       public float x;
       public float y;
@@ -71,6 +91,25 @@ namespace LegendOfWorlds.Engine.World {
       entity.AddComponent(obj);
 
       Console.WriteLine(engine.GetEntities()[0].GetComponent(type).GetPropertyValue("Points"));
+
+
+      var mc = new MyClass
+        {
+            Age = 99,
+            FirstName = "hoge",
+            LastName = "huga",
+        };
+      // Call Serialize/Deserialize, that's all.
+      byte[] bytes = MessagePackSerializer.Serialize(mc);
+      dynamic mc2 = MessagePackSerializer.Deserialize<dynamic>(bytes);
+
+      // You can dump msgpack binary blobs to human readable json.
+      // Using indexed keys (as opposed to string keys) will serialize to msgpack arrays,
+      // hence property names are not available.
+      // [99,"hoge","huga"]
+      var json = MessagePackSerializer.ConvertToJson(bytes);
+      Console.WriteLine(json);
+      Console.WriteLine(mc2);
 
       // Initialize game loop and render loop.
       Task.Run(Update);
