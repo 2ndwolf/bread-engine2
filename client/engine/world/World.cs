@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Blazor.Extensions.Canvas.Canvas2D;
 using FluentIL;
 using MessagePack;
+using Janus;
 
 namespace LegendOfWorlds.Engine.World {
   [MessagePackObject]
@@ -110,6 +111,13 @@ namespace LegendOfWorlds.Engine.World {
       var json = MessagePackSerializer.ConvertToJson(bytes);
       Console.WriteLine(json);
       Console.WriteLine(mc2);
+
+
+			Timeline<float> a = new Timeline<float>("x");
+      Timeline<float> a1 = new Timeline<float>("y");
+      Timeline<float> a2 = new Timeline<float>("z");
+
+      Console.WriteLine(a);
 
       // Initialize game loop and render loop.
       Task.Run(Update);
