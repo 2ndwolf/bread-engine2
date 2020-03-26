@@ -6,55 +6,14 @@ using Leopotam.Ecs;
 using FluentIL;
 
 namespace LegendOfWorlds.Engine.World {
-  struct Position {
-      public int x;
-      public int y;
+  public class Position : Audrey.IComponent {
+      public float x;
+      public float y;
   }
-
-  class TestSystem : IEcsRunSystem, IEcsInitSystem {
-      readonly EcsFilter<Position> _filter = null;
-      readonly EcsWorld _world = null;
-    
-      void IEcsInitSystem.Init() {
-          ref var newEntity = ref _world.NewEntity().Set<Position>();
-          Console.WriteLine(newEntity);
-      }
-
-      void IEcsRunSystem.Run() {
-          foreach (var i in _filter) {
-              // its valid code.
-              ref var component1 = ref _filter.Get1(i);
-
-              component1.x += 1;
-              component1.y += 1;
-          }
-      }
-  }
-class RenderSystem : IEcsInitSystem {
-    readonly EcsFilter<Position> _filter = null;
-    readonly EcsWorld _world = null;
-  
-    void IEcsInitSystem.Init() {
-      Task.Run(async () => {
-        for(;;) {
-          foreach (var i in _filter) {
-              // its valid code.
-              var position = _filter.Get1(i);
-              await World.baseCanvas.ClearRectAsync(0, 0, 500, 500);
-              await World.baseCanvas.SetFillStyleAsync("green");
-              await World.baseCanvas.FillRectAsync(position.x, position.y, 100, 100);
-              await Task.Delay(4);
-          }
-        }
-      });
-    }
-  }
-
 
   public class World {
     // ECS
-    public static EcsWorld _world;
-    public static EcsSystems _systems;
+    public static Audrey.Engine engine = new Audrey.Engine();
 
     // Rendering
     public static Canvas2DContext baseCanvas;
@@ -65,31 +24,11 @@ class RenderSystem : IEcsInitSystem {
       baseCanvas = _baseCanvas;
       canvases = new Dictionary<int, Canvas2DContext>();
 
-      _world = new EcsWorld();
-
-      _systems = new EcsSystems(_world);
-      _systems.Add(new TestSystem());
-      _systems.Add(new RenderSystem());
-      _systems.Init();
-
-      // Initialize game loop and render loop.
-      Task.Run(Update);
-
-      // JavaScript scripting runtime.
-
-      var engine = new Jint.Engine();
-      engine.SetValue("log", new Action<object>(Console.WriteLine));
-      engine.Execute(@"
-        function hello() { 
-          log('Fuck you all ahahaha!');
-        };
-        
-        hello();
-      ");
-
       var typeBuilder = TypeFactory
           .Default
           .NewType("Health")
+          .Class()
+          .Implements<Audrey.IComponent>()
           .Public();
 
       var field = typeBuilder
@@ -123,17 +62,23 @@ class RenderSystem : IEcsInitSystem {
               .Ret());
 
       var type = typeBuilder.CreateType();
-      var obj = Activator.CreateInstance(type);
+      var obj = (Audrey.IComponent) Activator.CreateInstance(type);
 
-      // type.GetMethod("SetValue").Invoke(obj, new object[] { "Test" });
       obj.SetPropertyValue("Points", 300);
-      Console.WriteLine(obj.GetPropertyValue("Points"));
+
+      var entity = engine.CreateEntity();
+      entity.AddComponent(new Position());
+      entity.AddComponent(obj);
+
+      Console.WriteLine(engine.GetEntities()[0].GetComponent(type).GetPropertyValue("Points"));
+
+      // Initialize game loop and render loop.
+      Task.Run(Update);
     }
 
     public static async Task Update() {
       for(;;)
       {
-        _systems.Run();
         await Task.Delay(16);
       }
     }

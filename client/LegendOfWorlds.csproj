@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\libs\ecs\Leopotam.Ecs.csproj" />
+    <ProjectReference Include="..\libs\Audrey\Audrey\Audrey.csproj" />
   </ItemGroup>
   
 </Project>
