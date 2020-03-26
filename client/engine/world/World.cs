@@ -73,6 +73,18 @@ class RenderSystem : IEcsInitSystem {
 
       // Initialize game loop and render loop.
       Task.Run(Update);
+
+      // JavaScript scripting runtime.
+
+      var engine = new Jint.Engine();
+      engine.SetValue("log", new Action<object>(Console.WriteLine));
+      engine.Execute(@"
+        function hello() { 
+          log('Fuck you all ahahaha!');
+        };
+        
+        hello();
+      ");
     }
 
     public static async Task Update() {
