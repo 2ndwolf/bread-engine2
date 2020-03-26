@@ -31,6 +31,12 @@ public struct EntityData : IComparable<EntityData>
     }
 }
 
+public struct Entity<T1, T2> {
+    public int entIdx;
+    public T1 component;
+    public T2 component2;
+}
+
 public partial class EntityRegistry : MappedBufferDense<EntUID, EntityData>
 {
     private EntUID currentUID_ = 0;
@@ -274,4 +280,62 @@ public partial class EntityRegistry : MappedBufferDense<EntUID, EntityData>
             }
         }
     }
+
+
+    public Entity<T0, T1>[] GetEntitiesFor<T0, T1>(Tag preFilterTags, ProcessComponent<T0, T1> loopAction)
+        where T0 : struct where T1 : struct
+    {
+        ushort typeMask = 0;
+
+        var t0Base = componentsManager_.GetBufferSlow<T0>();
+        if (t0Base.Sparse) typeMask |= 1 << 0;
+
+        var t1Base = componentsManager_.GetBufferSlow<T1>();
+        if (t1Base.Sparse) typeMask |= 1 << 1;
+
+        switch (typeMask)
+        {
+            case 0b_0000_0000_0000_0000:
+                return GetEntitiesFor00(preFilterTags, loopAction,
+                    (ComponentBufferDense<T0>)t0Base,
+                    (ComponentBufferDense<T1>)t1Base
+                );
+        }
+
+        return new Entity<T0, T1>[]{};
+    }
+    
+    public Entity<T1, T2>[] GetEntitiesFor00<T1, T2>(Tag preFilterTags,
+        ProcessComponent<T1, T2> loopAction,
+        ComponentBufferDense<T1> t1B, ComponentBufferDense<T2> t2B
+        )
+        where T1 : struct where T2 : struct
+    {
+        var compBuffers = t1B.__GetBuffers();
+        var compIdx2EntIdx = compBuffers.i2EntIdx;
+        var components = compBuffers.data;
+
+        var matcher2Flag = t2B.Matcher.Flag;
+        var matcher2Buffers = t2B.__GetBuffers();
+
+        // Entity array.
+        var entities = new Entity<T1, T2>[]{};
+
+        for (var i = components.Length - 1; i >= 0; i--)
+        {
+            ref T1 component = ref components[i];
+            EntIdx entIdx = compIdx2EntIdx[i];
+            ref EntityData entityData = ref data_[entIdx];
+            if ((entityData.FlagsDense & matcher2Flag) != 0)
+            {
+                int indexInMatcher2 = matcher2Buffers.entIdx2i[entIdx];
+                ref T2 component2 = ref matcher2Buffers.data[indexInMatcher2];
+                // loopAction(entIdx, ref component, ref component2);
+                entities.Append(new Entity<T1, T2>{ entIdx = entIdx, component = component, component2 = component2 });
+            }
+        }
+
+        return entities;
+    }
+
 }
