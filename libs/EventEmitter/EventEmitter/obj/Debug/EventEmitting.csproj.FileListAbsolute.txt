@@ -1,0 +1,5 @@
+D:\Dev\legend-of-worlds\legend-of-worlds-cs\libs\EventEmitter\EventEmitter\bin\Debug\EventEmitting.dll
+D:\Dev\legend-of-worlds\legend-of-worlds-cs\libs\EventEmitter\EventEmitter\bin\Debug\EventEmitting.pdb
+D:\Dev\legend-of-worlds\legend-of-worlds-cs\libs\EventEmitter\EventEmitter\obj\Debug\EventEmitting.csprojAssemblyReference.cache
+D:\Dev\legend-of-worlds\legend-of-worlds-cs\libs\EventEmitter\EventEmitter\obj\Debug\EventEmitting.dll
+D:\Dev\legend-of-worlds\legend-of-worlds-cs\libs\EventEmitter\EventEmitter\obj\Debug\EventEmitting.pdb

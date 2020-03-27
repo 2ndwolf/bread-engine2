@@ -5,6 +5,7 @@ using Blazor.Extensions.Canvas.Canvas2D;
 using FluentIL;
 using MessagePack;
 using Janus;
+using eeNet;
 
 namespace LegendOfWorlds.Engine.World {
   [MessagePackObject]
@@ -121,6 +122,10 @@ namespace LegendOfWorlds.Engine.World {
 
       // Initialize game loop and render loop.
       Task.Run(Update);
+
+      var _ee = new EventEmitter();
+      _ee.On("data_received", (msg) => Console.WriteLine(msg));
+      _ee.Emit("data_received", "We did it!");
     }
 
     public static async Task Update() {
