@@ -19,6 +19,7 @@ namespace LegendOfWorlds.Engine {
     // ECS
     public static Audrey.Engine engine = new Audrey.Engine();
     public static List<System> systems = new List<System>();
+    public static List<System> renderSystems = new List<System>();
 
     // Events
     public static EventEmitter EE = new EventEmitter();
@@ -46,7 +47,7 @@ namespace LegendOfWorlds.Engine {
 
     public static async Task Render() {
       for(;;) {
-        systems.ForEach((System system) => {
+        renderSystems.ForEach((System system) => {
           system.action();
         });
         await Task.Delay(8);
@@ -55,6 +56,9 @@ namespace LegendOfWorlds.Engine {
 
     public static async Task Update() {
       for(;;) {
+        systems.ForEach((System system) => {
+          system.action();
+        });
         await Task.Delay(16);
       }
     }
