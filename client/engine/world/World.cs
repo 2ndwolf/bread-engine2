@@ -2,19 +2,26 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Blazor.Extensions.Canvas.Canvas2D;
-
+using eeNet;
 using LegendOfWorlds.Engine.Ecs;
 
 namespace LegendOfWorlds.Engine {
   public struct System {
     public string name;
     public Action action;
+
+    public static System create(Action value) {
+      return new System() { name=nameof(value), action=value };
+    }
   }
 
   public class World {
     // ECS
     public static Audrey.Engine engine = new Audrey.Engine();
     public static List<System> systems = new List<System>();
+
+    // Events
+    public static EventEmitter EE = new EventEmitter();
 
     // Rendering
     public static Canvas2DContext baseCanvas;
@@ -30,6 +37,7 @@ namespace LegendOfWorlds.Engine {
       Systems.Init();
 
       // Intiailize events.
+      Events.Init();
 
       // Initialize game loop and render loop.
       Task.Run(Render);
