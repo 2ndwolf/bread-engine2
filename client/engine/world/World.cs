@@ -10,12 +10,12 @@ namespace LegendOfWorlds.Engine {
     public string name;
     public Action action;
 
-    public static System create(Action value) {
-      return new System() { name=nameof(value), action=value };
+    public static System create(Action _action) {
+      return new System() { name=nameof(_action), action=_action };
     }
   }
 
-  public class World {
+  public static class World {
     // ECS
     public static Audrey.Engine engine = new Audrey.Engine();
     public static List<System> systems = new List<System>();

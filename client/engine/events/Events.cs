@@ -1,14 +1,21 @@
 using static LegendOfWorlds.Engine.World;
-
+using System;
 
 namespace LegendOfWorlds.Engine {
-  public partial class Events {
+  public static partial class Events {
+    // Util func.
+    public static void AddEvent(Action action) {
+      World.EE.On(nameof(action), action);
+    }
+    
+    public static void EmitEvent(Action action, dynamic data) {
+      World.EE.Emit(nameof(action), data);
+    }
+    
     public static void Init() {
-      World.EE.On(nameof(bootstrapPlayer), )
+      AddEvent(BootstrapPlayer);
+      EmitEvent(BootstrapPlayer, "Hello world!");
     }
 
-    public static void bootstrapPlayer() {
-
-    }
   }
 }
