@@ -1,5 +1,4 @@
 @page "/"
-@using LegendOfWorlds.Engine.World
 
 <BECanvas Width="1280" Height="720" @ref="_canvasReference" ></BECanvas>
 
@@ -9,6 +8,6 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         var baseCanvas = await this._canvasReference.CreateCanvas2DAsync();
-        World.Init(baseCanvas);
+        LegendOfWorlds.Engine.World.Init(baseCanvas);
     }
 }
