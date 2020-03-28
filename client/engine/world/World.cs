@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Blazor.Extensions.Canvas.Canvas2D;
 using eeNet;
 using LegendOfWorlds.Engine.Ecs;
+using LegendOfWorlds.Loader;
+
 
 namespace LegendOfWorlds.Engine {
   public struct System {
@@ -16,6 +18,9 @@ namespace LegendOfWorlds.Engine {
   }
 
   public static class World {
+    // TEST
+    
+
     // ECS
     public static Audrey.Engine engine = new Audrey.Engine();
     public static List<System> systems = new List<System>();

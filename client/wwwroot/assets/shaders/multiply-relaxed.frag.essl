@@ -1,0 +1,19 @@
+#version 100
+precision mediump float;
+precision mediump int;
+
+uniform mediump sampler2D background;
+uniform mediump sampler2D foreground;
+uniform mediump sampler2D tex;
+
+varying vec2 texCoord;
+varying vec4 color;
+
+void main()
+{
+    vec4 bgColor = texture2D(background, texCoord);
+    vec4 fgColor = texture2D(foreground, texCoord);
+    vec3 color_1 = bgColor.xyz * fgColor.xyz;
+    gl_FragData[0] = color_1;
+}
+

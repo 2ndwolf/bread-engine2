@@ -1,0 +1,5 @@
+"pwa_a1.nw","pwa_b1.nw","pwa_c1.nw","pwa_d1.nw","pwa_e1.nw"
+"pwa_a2.nw","pwa_b2.nw","pwa_c2.nw","pwa_d2.nw","pwa_e2.nw"
+"pwa_a3.nw","pwa_b3.nw","pwa_c3.nw","pwa_d3.nw","pwa_e3.nw"
+"pwa_a4.nw","pwa_b4.nw","pwa_c4.nw","pwa_d4.nw","pwa_e4.nw"
+"pwa_a5.nw","pwa_b5.nw","pwa_c5.nw","pwa_d5.nw","pwa_e5.nw"
