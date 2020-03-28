@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Blazor.Extensions.Canvas.Canvas2D;
 using eeNet;
 using LegendOfWorlds.Engine.Ecs;
-using LegendOfWorlds.Loader;
+using LegendOfWorlds.Loaders;
 
 
 namespace LegendOfWorlds.Engine {
@@ -18,8 +18,6 @@ namespace LegendOfWorlds.Engine {
   }
 
   public static class World {
-    // TEST
-    
 
     // ECS
     public static Audrey.Engine engine = new Audrey.Engine();
@@ -34,6 +32,12 @@ namespace LegendOfWorlds.Engine {
     public static Dictionary<int, Canvas2DContext> canvases;
 
     public static void Init(Canvas2DContext _baseCanvas) {
+      
+    // TEST
+      string cat = Loaders.Loaders.OpenTxtFile("assets/pwacells/pwa_a1.nw").ToString();
+
+      Console.WriteLine(cat);
+
       // Initialize Canvas
       baseCanvas = _baseCanvas;
       canvases = new Dictionary<int, Canvas2DContext>();
@@ -70,4 +74,3 @@ namespace LegendOfWorlds.Engine {
 
   }
 }
-

@@ -5,13 +5,15 @@
 */
 
 using System.Threading.Tasks;
+using System.Net;
+using System.IO;
 using System;
 
-namespace LegendOfWorlds.Loader {
+namespace LegendOfWorlds.Loaders {
 
-    public class Loader{
+    public static class Loaders{
 
-        public async Task<string> OpenTxtFile(string uri)
+        public static async Task<string> OpenTxtFile(string uri)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
@@ -24,7 +26,7 @@ namespace LegendOfWorlds.Loader {
             }
         }
 
-        public async void OpenImageFile(string uri)
+        public static async void OpenImageFile(string uri)
         {
             
         }

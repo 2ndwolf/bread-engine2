@@ -2,9 +2,13 @@
     A dictionary for NW tiles
 */
 
+using System;
+using System.Collections.Generic;
+
+
 public partial class NwParser {
 
-    Dictionary<string, int[]> tileSwitch = new Dictionary<string, int[]>()
+    public static Dictionary<string, int[]> tileSwitch = new Dictionary<string, int[]>()
       {
         {"AA", new int[]{0, 0, 0}},
         {"AB", new int[]{16, 0, 0}},

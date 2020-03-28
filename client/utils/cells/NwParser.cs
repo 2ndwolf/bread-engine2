@@ -5,6 +5,8 @@
  * TODO: Links, Signs, NPCs, Chests and Baddies
  * 
  *  */ 
+using System;
+using System.Collections.Generic;
 
 
 
@@ -20,19 +22,19 @@ public partial class NwParser {
     }
     
     public static List<CellTile> parseCell (string cellFile) {
-      const string[,] cellData = NwParser.createCellData(cellFile);
-      const List<CellTile> cellTilesList = NwParser.createTiles(cellData);
+      string[,] cellData = NwParser.createCellData(cellFile);
+      List<CellTile> cellTilesList = NwParser.createTiles(cellData);
       return cellTilesList;
     }
   
     private static List<CellTile> createTiles (string[,] cellData) {
-      const List<CellTile> cellTilesList = new List<CellTile>();
+      List<CellTile> cellTilesList = new List<CellTile>();
       // Cells are 64 x 64 tiles in size.
       for (int y = 0; y < 64; y++) {
         for (int x = 0; x < 64; x++) {
             // let tile = []
-            const string tileStr = cellData[y][5][x*2] + cellData[y][5][2*x+1];
-            const int[] tile = tileSwitch[tileStr];
+            string tileStr = cellData[y,5][x*2].ToString() + cellData[y,5][2*x+1].ToString();
+            int[] tile = tileSwitch[tileStr];
             // console.log(tile)
             cellTilesList.Add(
                 new CellTile{
@@ -49,11 +51,14 @@ public partial class NwParser {
     }
   
     private static string[,] createCellData (string cellFile) {
-      const string[] cellArray = cellFile.Split("BOARD");
-      string[,] cellData = new string[,];
+      string[] cellArray = cellFile.Split("BOARD");
+      string[,] cellData = new string[64,5];
   
       for (int i = 1; i < 65; i++) {
-        cellData[i-1] = cellArray[i].Split(' ');
+        string[] splitCellArray = cellArray[i].Split(' ');
+        for(int j = 0; j < splitCellArray.Length; j++){
+          cellData[i-1,j] = splitCellArray[j];
+        }
       }
   
       return cellData;
