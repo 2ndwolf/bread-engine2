@@ -23,14 +23,14 @@ namespace eeNet
         }
         */
 
-        private Dictionary<string, List<Action<object>>> _events;
+        private Dictionary<string, List<dynamic>> _events;
 
         /// <summary>
         /// The EventEmitter object to subscribe to events with
         /// </summary>
         public EventEmitter()
         {
-            this._events = new Dictionary<string, List<Action<object>>>();
+            this._events = new Dictionary<string, List<dynamic>>();
         }
 
         /// <summary>
@@ -38,16 +38,16 @@ namespace eeNet
         /// </summary>
         /// <param name="eventName">Event name to subscribe to</param>
         /// <param name="method">Method to add to the event</param>
-        public void On(string eventName, Action<object> method)
+        public void On(string eventName, dynamic method)
         {
-            List<Action<object>> subscribedMethods;
+            List<dynamic> subscribedMethods;
             if (this._events.TryGetValue(eventName, out subscribedMethods))
             {
                 subscribedMethods.Add(method);
             }
             else
             {
-                this._events.Add(eventName, new List<Action<object>> { method });
+                this._events.Add(eventName, new List<dynamic> { method });
             }
         }
 
@@ -58,7 +58,7 @@ namespace eeNet
         /// <param name="data">Data to call the attached methods with</param>
         public void Emit(string eventName, object data)
         {
-            List<Action<object>> subscribedMethods;
+            List<dynamic> subscribedMethods;
             if (!this._events.TryGetValue(eventName, out subscribedMethods))
             {
                 throw new DoesNotExistException(string.Format("Event [{0}] does not exist in the emitter. Consider calling EventEmitter.On", eventName));
@@ -77,9 +77,9 @@ namespace eeNet
         /// </summary>
         /// <param name="eventName">Event name to remove function from</param>
         /// <param name="method">Method to remove from eventName</param>
-        public void RemoveListener(string eventName, Action<object> method)
+        public void RemoveListener(string eventName, dynamic method)
         {
-            List<Action<object>> subscribedMethods;
+            List<dynamic> subscribedMethods;
             if (!this._events.TryGetValue(eventName, out subscribedMethods))
             {
                 throw new DoesNotExistException(string.Format("Event [{0}] does not exist to have listeners removed.", eventName));
@@ -104,7 +104,7 @@ namespace eeNet
         /// <param name="eventName">Event name to remove methods from</param>
         public void RemoveAllListeners(string eventName)
         {
-            List<Action<object>> subscribedMethods;
+            List<dynamic> subscribedMethods;
             if (!this._events.TryGetValue(eventName, out subscribedMethods))
             {
                 throw new DoesNotExistException(string.Format("Event [{0}] does not exist to have methods removed.", eventName));
@@ -122,7 +122,7 @@ namespace eeNet
         /// <param name="data">The data to call all the methods with</param>
         public void EmitAsync(string eventName, object data)
         {
-            List<Action<object>> subscribedMethods;
+            List<dynamic> subscribedMethods;
             if (!this._events.TryGetValue(eventName, out subscribedMethods))
             {
                 throw new DoesNotExistException(string.Format("Event [{0}] does not exist in the emitter. Consider calling EventEmitter.On", eventName));
