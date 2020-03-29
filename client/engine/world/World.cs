@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Blazor.Extensions.Canvas.Canvas2D;
 using eeNet;
 using LegendOfWorlds.Engine.Ecs;
+using System.Drawing;
 
 namespace LegendOfWorlds.Engine {
   public struct System {
@@ -43,6 +44,8 @@ namespace LegendOfWorlds.Engine {
       // Initialize game loop and render loop.
       Task.Run(Render);
       Task.Run(Update);
+
+      Image image2 = Image.FromFile();
     }
 
     public static async Task Render() {

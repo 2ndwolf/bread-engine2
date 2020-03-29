@@ -8,7 +8,7 @@ namespace LegendOfWorlds.Engine {
       World.EE.On(nameof(action), action);
     }
     
-    public static void EmitEvent(Action<object> action, dynamic data) {
+    public static void EmitEvent(Action<object> action, object data) {
       World.EE.Emit(nameof(action), data);
     }
     
