@@ -49,6 +49,7 @@
     return JSON.stringify({
       data: Array.from(data)
     })
+
   }
 
   window.initGL = async () => {
@@ -67,6 +68,29 @@
     // Create a buffer.
     positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    // Put texcoords in the buffer
+    var texcoords = [
+      0, 0,
+      0, 1,
+      1, 0,
+      1, 0,
+      0, 1,
+      1, 1,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texcoords), gl.STATIC_DRAW);
+
+
+    // Put a unit quad in the buffer
+    var positions = [
+      0, 0,
+      0, 1,
+      1, 0,
+      1, 0,
+      0, 1,
+      1, 1,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
     texcoordBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
   }
@@ -82,8 +106,8 @@
       let tex = texRef
       let texWidth = 192
       let texHeight = 64
-      let dstX = 50 
-      let dstY = 50
+      let dstX = 0 
+      let dstY = 0
 
       gl.bindTexture(gl.TEXTURE_2D, tex);
 
@@ -115,7 +139,9 @@
       gl.uniform1i(textureLocation, 0);
 
       // draw the quad (2 triangles, 6 vertices)
-      gl.drawArrays(gl.TRIANglES, 0, 6);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+      console.log(matrix)
   }
 
   window.loadImageAndCreateTextureInfo = async (url) => {
@@ -155,6 +181,8 @@
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
 
     textRef = tex;
+
+    console.log(tex)
   
     return JSON.stringify(textureInfo);
   }
