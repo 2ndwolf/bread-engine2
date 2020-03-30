@@ -12,8 +12,8 @@ namespace LegendOfWorlds.Engine {
     public static async Task DrawImage() {
       //await jsRuntime.InvokeAsync<string>("window.drawImage", new object[]{"null"});
       //await jsRuntime.InvokeAsync<object>("initGL", new object[]{"null"});
-      await jsRuntime.InvokeAsync<object>("loadImageAndCreateTextureInfo", new object[]{"https://localhost:5001/assets/doll.png"});
-      await jsRuntime.InvokeAsync<object>("drawImage", new object[]{"https://localhost:5001/assets/doll.png"});
+      //await jsRuntime.InvokeAsync<object>("window.loadImageAndCreateTextureInfo", new object[]{"https://localhost:5001/assets/doll.png"});
+      //await jsRuntime.InvokeAsync<object>("window.drawImage", new object[]{"null"});
 
       /*
       var program = 5; //GL.CreateProgramFromScripts(gl, ["drawImage-vertex-shader", "drawImage-fragment-shader"]);

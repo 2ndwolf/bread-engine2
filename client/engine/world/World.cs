@@ -52,7 +52,6 @@ namespace LegendOfWorlds.Engine {
       Task.Run(Render);
       Task.Run(Update);
       Task.Run(UpdateVM);
-
       await RenderTest();
     }
 

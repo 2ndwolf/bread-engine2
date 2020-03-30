@@ -1,8 +1,8 @@
 (function() {
-  const canvas = document.createElement('canvas')
-  const canvas2DCtx = canvas.getContext('2d')
-  let gl;
-  let M4;
+  const canvas = document.getElementById("root-canvas")
+  const gl = canvas.getContext('webgl')
+
+  // Variables
   // setup glSL program
   let program;
   // look up where the vertex data needs to go.
@@ -14,11 +14,10 @@
   let textureLocation;
 
   // Create a buffer.
-  var positionBuffer;
+  let positionBuffer;
   // Create a buffer for texture coords
-  var texcoordBuffer;
-
-  let texRef;
+  let texcoordBuffer;
+  let tex;
   
   window.createImage = async (url, id) => {
     // Create new image object.
@@ -52,8 +51,7 @@
 
   }
 
-  window.initGL = async () => {
-    gl = document.getElementsByTagName("canvas")[0].getContext("webgl")
+  window.initializeGL = async () => {
       // setup glSL program
     program = webglUtils.createProgramFromScripts(gl, ["drawImage-vertex-shader", "drawImage-fragment-shader"]);
 
@@ -68,17 +66,6 @@
     // Create a buffer.
     positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    // Put texcoords in the buffer
-    var texcoords = [
-      0, 0,
-      0, 1,
-      1, 0,
-      1, 0,
-      0, 1,
-      1, 1,
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texcoords), gl.STATIC_DRAW);
-
 
     // Put a unit quad in the buffer
     var positions = [
@@ -93,6 +80,17 @@
 
     texcoordBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+
+    // Put texcoords in the buffer
+    var texcoords = [
+      0, 0,
+      0, 1,
+      1, 0,
+      1, 0,
+      0, 1,
+      1, 1,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texcoords), gl.STATIC_DRAW);
   }
 
   window.drawImage = async () => {
@@ -103,7 +101,6 @@
 
       gl.clear(gl.COLOR_BUFFER_BIT);
 
-      let tex = texRef
       let texWidth = 192
       let texHeight = 64
       let dstX = 0 
@@ -145,12 +142,13 @@
   }
 
   window.loadImageAndCreateTextureInfo = async (url) => {
-    var tex = gl.createTexture();
+    tex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, tex);
     // Fill the texture with a 1x1 blue pixel.
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
                   new Uint8Array([0, 0, 255, 255]));
 
+    
     // let's assume all images are not a power of 2
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -161,6 +159,7 @@
       height: 1,
       texture: tex,
     };
+
     var img = new Image();
     img.src = url;
 
@@ -177,13 +176,15 @@
     textureInfo.width = imgWidth;
     textureInfo.height = imgHeight;
 
-    gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
 
-    textRef = tex;
-
-    console.log(tex)
-  
     return JSON.stringify(textureInfo);
   }
+
+  (async () => {
+    await initializeGL()
+    await loadImageAndCreateTextureInfo("https://localhost:5001/assets/doll.png");
+    await drawImage()
+  })()
 })()
