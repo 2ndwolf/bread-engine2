@@ -1,10 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Blazor.Extensions.Canvas.Canvas2D;
+using Blazor.Extensions.Canvas.WebGL;
 using eeNet;
 using LegendOfWorlds.Engine.Ecs;
-using System.Drawing;
+
+using Microsoft.JSInterop;
 
 namespace LegendOfWorlds.Engine {
   public struct System {
@@ -16,7 +17,7 @@ namespace LegendOfWorlds.Engine {
     }
   }
 
-  public static class World {
+  public partial class World {
     // ECS
     public static Audrey.Engine engine = new Audrey.Engine();
     public static List<System> systems = new List<System>();
@@ -26,14 +27,20 @@ namespace LegendOfWorlds.Engine {
     public static EventEmitter EE = new EventEmitter();
 
     // Rendering
-    public static Canvas2DContext baseCanvas;
-    public static Dictionary<int, Canvas2DContext> canvases;
+    public static WebGLContext GL;
+    public static Dictionary<int, WebGLContext> canvases;
 
-    public static void Init(Canvas2DContext _baseCanvas) {
+    public static IJSRuntime jsRuntime;
+
+    public World(IJSRuntime _jsRuntime) {
+      jsRuntime = _jsRuntime;
+    }
+
+    public static async Task Init(WebGLContext baseContext) {
       // Initialize Canvas
-      baseCanvas = _baseCanvas;
-      canvases = new Dictionary<int, Canvas2DContext>();
-      canvases.Add(-1, baseCanvas);
+      GL = baseContext;
+      canvases = new Dictionary<int, WebGLContext>();
+      canvases.Add(-1, GL);
 
       // Initialize systems.
       Systems.Init();
@@ -44,8 +51,9 @@ namespace LegendOfWorlds.Engine {
       // Initialize game loop and render loop.
       Task.Run(Render);
       Task.Run(Update);
+      Task.Run(UpdateVM);
 
-      Image image2 = Image.FromFile();
+      await RenderTest();
     }
 
     public static async Task Render() {
@@ -64,6 +72,17 @@ namespace LegendOfWorlds.Engine {
         });
         await Task.Delay(16);
       }
+    }
+
+    public static async Task UpdateVM() {
+      /*
+      for(;;) {
+        systems.ForEach((System system) => {
+          system.action();
+        });
+        await Task.Delay(16);
+      }
+      */
     }
 
   }
