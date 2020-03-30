@@ -18,13 +18,23 @@ namespace LegendOfWorlds.Engine {
     }
 
     public static async Task DrawImage() {
-      var res = await jsRuntime.InvokeAsync<string>("loadImageAndCreateTextureInfo", new object[]{"https://localhost:5001/assets/doll.png", Guid.NewGuid().ToString()});
+      /*
+      var res = await jsRuntime.InvokeAsync<string>("loadImageAndCreateTextureInfo", new object[]{
+        "https://localhost:5001/assets/doll.png", 
+        Guid.NewGuid().ToString()
+      });
       var textureInfo = JsonSerializer.Deserialize<TextureInfo>(res);
-      await jsRuntime.InvokeAsync<string>("drawImage", new object[]{
+      await jsRuntime.InvokeAsync<string>("drawImage", new object[] {
         textureInfo.id, 
         0,
         0
       });
+      await jsRuntime.InvokeAsync<string>("drawImageOnTexture", new object[] {
+        textureInfo.id, 
+        0,
+        0
+      });
+      */
     }
 
     /*

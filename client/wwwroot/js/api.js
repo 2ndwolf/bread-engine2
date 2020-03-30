@@ -4,6 +4,11 @@
 
   // Texture Dictionary
   const textures = new Map()
+  // Render Target Dictionary
+  const targets = new Map()
+
+  const rootTexture = gl.createTexture()
+  gl.bindTexture(gl.TEXTURE_2D, rootTexture)
 
   // Variables
   // setup glSL program
@@ -95,20 +100,15 @@
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texcoords), gl.STATIC_DRAW)
   }
 
-  window.drawImage = async (id, dstX, dstY) => {
-      webglUtils.resizeCanvasToDisplaySize(gl.canvas)
+  window.drawRootTarget = async (dstX, dstY) => {
+      //webglUtils.resizeCanvasToDisplaySize(gl.canvas)
 
-      // Tell WebGL how to convert from clip space to pixels
-      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
 
-      gl.clear(gl.COLOR_BUFFER_BIT)
-      const textureInfo = textures.get(id)
-      const { width, height, tex } = textureInfo
-
-      const texWidth = width
-      const texHeight = height
-
-      gl.bindTexture(gl.TEXTURE_2D, tex)
+      // Bind framebuffer
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+      
+      // Bind texture
+      gl.bindTexture(gl.TEXTURE_2D, rootTexture);
 
       // Tell Webgl to use our shader program pair
       gl.useProgram(program)
@@ -128,8 +128,8 @@
       matrix = m4.translate(matrix, dstX, dstY, 0)
 
       // this matrix will scale our 1 unit quad
-      // from 1 unit to texWidth, texHeight units
-      matrix = m4.scale(matrix, texWidth, texHeight, 1)
+      // from 1 unit to gl.canvas.width, gl.canvas.height units
+      matrix = m4.scale(matrix, gl.canvas.width, gl.canvas.height, 1)
 
       // Set the matrix.
       gl.uniformMatrix4fv(matrixLocation, false, matrix)
@@ -139,6 +139,53 @@
 
       // draw the quad (2 triangles, 6 vertices)
       gl.drawArrays(gl.TRIANGLES, 0, 6)
+  }
+
+  window.createTarget = async (id) => {
+    const fb = gl.createFramebuffer()
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+
+    targets.set(id, fb)
+  }
+
+  // Draw on the texture.
+  window.blitOnTarget = (id, width, height) => {
+    const fb = targets.get(id)
+    const texture = textures.get(id).tex
+
+    // render to our targetTexture by binding the framebuffer
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+ 
+    // render cube with our 3x2 texture
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+ 
+    // Tell WebGL how to convert from clip space to pixels
+    gl.viewport(0, 0, width, height); // Target texture width and height
+ 
+    // Clear the attachment(s).
+    gl.clearColor(0, 0, 1, 1);   // clear to blue
+    gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
+  }
+
+  window.blitOnRoot = () => {
+    targets.forEach((target, id) => {
+      // render to our targetTexture by binding the framebuffer
+      gl.bindFramebuffer(gl.FRAMEBUFFER, target);
+  
+      // render cube with our 3x2 texture
+      gl.bindTexture(gl.TEXTURE_2D, textures.get(id).tex);
+  
+      // Tell WebGL how to convert from clip space to pixels
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+  
+      // Clear the attachment(s).
+      gl.clearColor(0, 0, 1, 1);   // clear to blue
+      gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
+    })
+  }
+
+  window.clearTexture = async (id) => {
+    textures.get(id)
   }
 
   window.loadImageAndCreateTextureInfo = async (url, id) => {
@@ -186,11 +233,14 @@
     return JSON.stringify(textureInfo)
   }
 
-  /*
+  
   (async () => {
     await initializeGL()
-    await loadImageAndCreateTextureInfo("https://localhost:5001/assets/doll.png")
-    await drawImage()
+    const { id, width, height } = await loadImageAndCreateTextureInfo("https://localhost:5001/assets/doll.png")
+    await createTarget()
+    //await blitOnTarget(id, width, height)
+    //await blitOnRoot()
+    //await drawRootTarget(0, 0)
   })()
-  */
+  
 })()
