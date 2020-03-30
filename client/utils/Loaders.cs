@@ -6,30 +6,36 @@
 
 using System.Threading.Tasks;
 using System.Net;
+using System.Net.Http;
 using System.IO;
 using System;
+using LegendOfWorlds.Image;
 
 namespace LegendOfWorlds.Loaders {
 
     public static class Loaders{
+        private static HttpClient HC = new HttpClient();
 
-        public static async Task<string> OpenTxtFile(string uri)
+        public static async void OpenTxtFile()
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
-            using(HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
-            using(Stream stream = response.GetResponseStream())
-            using(StreamReader reader = new StreamReader(stream))
-            {
-                return await reader.ReadToEndAsync();
-            }
         }
 
-        public static async void OpenImageFile(string uri)
+        public static async Task<Image.Image> OpenImageFile(string uri)
         {
-            
+            //HC.BaseAddress = new Uri("http://localhost:5001");
+            var bob = await HC.GetAsync(uri);
+            byte[] byteArray = await bob.Content.ReadAsByteArrayAsync();
+
+            string[] splitDot = uri.Split('.');
+
+            Console.WriteLine(splitDot[splitDot.Length-1]);
+
+            return new Image.Image(byteArray, splitDot[splitDot.Length-1]);
+
         }
+
+
 
     }
 }   

@@ -1,4 +1,7 @@
 @page "/"
+@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Components.Builder
+@using System.Net.Http
 
 <BECanvas Width="1280" Height="720" @ref="_canvasReference" ></BECanvas>
 
@@ -10,4 +13,5 @@
         var baseCanvas = await this._canvasReference.CreateCanvas2DAsync();
         LegendOfWorlds.Engine.World.Init(baseCanvas);
     }
+
 }

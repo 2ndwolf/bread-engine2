@@ -32,11 +32,14 @@ namespace LegendOfWorlds.Engine {
     public static Dictionary<int, Canvas2DContext> canvases;
 
     public static void Init(Canvas2DContext _baseCanvas) {
+
       
     // TEST
-      string cat = Loaders.Loaders.OpenTxtFile("assets/pwacells/pwa_a1.nw").ToString();
+      Image.Image img = Loaders.Loaders.OpenImageFile("https://localhost:5001/assets/images/body.png").Result;
 
-      Console.WriteLine(cat);
+      //TexSubImage2DAsync<T>(Texture2DType target, int level, int xoffset, int yoffset, int width, int height, PixelFormat format, PixelType type, T[] pixels)
+
+      //Console.WriteLine(cat);
 
       // Initialize Canvas
       baseCanvas = _baseCanvas;
@@ -52,6 +55,8 @@ namespace LegendOfWorlds.Engine {
       // Initialize game loop and render loop.
       Task.Run(Render);
       Task.Run(Update);
+
+            
     }
 
     public static async Task Render() {
@@ -64,6 +69,7 @@ namespace LegendOfWorlds.Engine {
     }
 
     public static async Task Update() {
+
       for(;;) {
         systems.ForEach((System system) => {
           system.action();
