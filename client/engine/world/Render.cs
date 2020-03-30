@@ -2,20 +2,38 @@ using System;
 using System.Net.Http;
 using Blazor.Extensions.Canvas.WebGL;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace LegendOfWorlds.Engine {
+  public class TextureInfo {
+      public string id { get; set; }
+      public int width { get; set; }
+      public int height { get; set; }
+  }
+
   public partial class World {
     public static async Task RenderTest() {
       await DrawImage();
     }
 
     public static async Task DrawImage() {
+      var res = await jsRuntime.InvokeAsync<string>("loadImageAndCreateTextureInfo", new object[]{"https://localhost:5001/assets/doll.png", Guid.NewGuid().ToString()});
+      var textureInfo = JsonSerializer.Deserialize<TextureInfo>(res);
+      await jsRuntime.InvokeAsync<string>("window.drawImage", new object[]{
+        textureInfo.id, 
+        0,
+        0
+      });
+    }
+
+    /*
+    public static async Task DrawImage() {
       //await jsRuntime.InvokeAsync<string>("window.drawImage", new object[]{"null"});
       //await jsRuntime.InvokeAsync<object>("initGL", new object[]{"null"});
       //await jsRuntime.InvokeAsync<object>("window.loadImageAndCreateTextureInfo", new object[]{"https://localhost:5001/assets/doll.png"});
       //await jsRuntime.InvokeAsync<object>("window.drawImage", new object[]{"null"});
 
-      /*
       var program = 5; //GL.CreateProgramFromScripts(gl, ["drawImage-vertex-shader", "drawImage-fragment-shader"]);
 
       var positionBuffer = await GL.CreateBufferAsync();
@@ -54,7 +72,6 @@ namespace LegendOfWorlds.Engine {
 
       // draw the quad (2 triangles, 6 vertices)
       await GL.DrawArraysAsync(Primitive.TRIANGLES, 0, 6);
-      */
     }
 
     public static async Task<WebGLTexture> CreateTextureInfo() {
@@ -80,6 +97,7 @@ namespace LegendOfWorlds.Engine {
 
       return tex;
     }
+    */
 
   }
 }
