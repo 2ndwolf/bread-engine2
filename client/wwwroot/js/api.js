@@ -7,8 +7,25 @@
   // Render Target Dictionary
   const targets = new Map()
 
+  // Root texture
   const rootTexture = gl.createTexture()
   gl.bindTexture(gl.TEXTURE_2D, rootTexture)
+
+  // define size and format of level 0
+  const level = 0;
+  const internalFormat = gl.RGBA;
+  const border = 0;
+  const format = gl.RGBA;
+  const type = gl.UNSIGNED_BYTE;
+  const data = null;
+  gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+                1920, 1080, border,
+                format, type, data);
+ 
+  // set the filtering so we don't need mips
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
   // Variables
   // setup glSL program
@@ -43,7 +60,6 @@
     const imgWidth = img.width || img.naturalWidth
     const imgHeight = img.height || img.naturalHeight
 
-    
     // Draw image on canvas and get data back in RBGA format.
     canvas2DCtx.drawImage(img, 0, 0, imgWidth, imgHeight)
     const data = canvas2DCtx.getImageData(0, 0, imgWidth, imgHeight).data
@@ -103,7 +119,6 @@
   window.drawRootTarget = async (dstX, dstY) => {
       //webglUtils.resizeCanvasToDisplaySize(gl.canvas)
 
-
       // Bind framebuffer
       gl.bindFramebuffer(gl.FRAMEBUFFER, null)
       
@@ -142,8 +157,26 @@
   }
 
   window.createTarget = async (id) => {
+    const texture = textures.get(id)
     const fb = gl.createFramebuffer()
-    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+
+    gl.bindTexture(gl.TEXTURE_2D, texture.tex)
+
+     // define size and format of level 0
+    const level = 0;
+    const internalFormat = gl.RGBA;
+    const border = 0;
+    const format = gl.RGBA;
+    const type = gl.UNSIGNED_BYTE;
+    const data = null;
+    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+                  1920, 1080, border,
+                  format, type, data);
+  
+    // set the filtering so we don't need mips
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
     targets.set(id, fb)
   }
@@ -151,20 +184,21 @@
   // Draw on the texture.
   window.blitOnTarget = (id, width, height) => {
     const fb = targets.get(id)
-    const texture = textures.get(id).tex
+    const texture = textures.get(id)
 
+    
     // render to our targetTexture by binding the framebuffer
     gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
- 
+
     // render cube with our 3x2 texture
-    gl.bindTexture(gl.TEXTURE_2D, texture);
- 
+    gl.bindTexture(gl.TEXTURE_2D, texture.tex);
+
     // Tell WebGL how to convert from clip space to pixels
     gl.viewport(0, 0, width, height); // Target texture width and height
  
     // Clear the attachment(s).
-    gl.clearColor(0, 0, 1, 1);   // clear to blue
-    gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
+    // gl.clearColor(0, 0, 1, 1);   // clear to blue
+    // gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
   }
 
   window.blitOnRoot = () => {
@@ -179,8 +213,8 @@
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   
       // Clear the attachment(s).
-      gl.clearColor(0, 0, 1, 1);   // clear to blue
-      gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
+      //gl.clearColor(0, 0, 1, 1);   // clear to blue
+      //gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
     })
   }
 
@@ -237,10 +271,10 @@
   (async () => {
     await initializeGL()
     const { id, width, height } = await loadImageAndCreateTextureInfo("https://localhost:5001/assets/doll.png")
-    await createTarget()
-    //await blitOnTarget(id, width, height)
-    //await blitOnRoot()
-    //await drawRootTarget(0, 0)
+    await createTarget(id)
+    await blitOnTarget(id, width, height)
+    await blitOnRoot()
+    await drawRootTarget(0, 0)
   })()
   
 })()
