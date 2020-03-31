@@ -11,7 +11,7 @@
     const canvas = document.createElement('canvas')
     canvas.width = 1920
     canvas.height = 1080
-    
+
     const ctx = canvas.getContext('2d')
 
     targets.set(id, {
@@ -27,14 +27,12 @@
   window.drawOnTarget = (id) => {
     const target = targets.get(id)
     const image = images.get(id)
-    console.log(image)
     target.ctx.drawImage(image, 0, 0)
   }
 
   window.drawAllTargets = async () => {
     rootCtx.clearRect(0, 0, rootCanvas.width, rootCanvas.height)
     targets.forEach((target, id) => {
-      console.log(target)
       rootCtx.drawImage(target.canvas, target.x, target.y)
     })
   }
