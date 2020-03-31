@@ -1,48 +1,44 @@
 (function() {
-  const canvas = document.getElementById("root-canvas")
-  const gl = canvas.getContext('webgl')
+  const rootCanvas = document.getElementById("root-canvas")
+  const rootCtx = rootCanvas.getContext('2d')
 
-  // Texture Dictionary
-  const textures = new Map()
-  // Render Target Dictionary
+  // Render targets
   const targets = new Map()
+  // Textures
+  const images = new Map()
 
-  // Root texture
-  const rootTexture = gl.createTexture()
-  gl.bindTexture(gl.TEXTURE_2D, rootTexture)
+  window.createTarget = async (id, x, y) => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 1920
+    canvas.height = 1080
+    
+    const ctx = canvas.getContext('2d')
 
-  // define size and format of level 0
-  const level = 0;
-  const internalFormat = gl.RGBA;
-  const border = 0;
-  const format = gl.RGBA;
-  const type = gl.UNSIGNED_BYTE;
-  const data = null;
-  gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
-                1920, 1080, border,
-                format, type, data);
- 
-  // set the filtering so we don't need mips
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    targets.set(id, {
+      canvas,
+      ctx,
+      x,
+      y
+    })
+    
+    return id
+  }
 
-  // Variables
-  // setup glSL program
-  let program
-  // look up where the vertex data needs to go.
-  let positionLocation
-  let texcoordLocation
+  window.drawOnTarget = (id) => {
+    const target = targets.get(id)
+    const image = images.get(id)
+    console.log(image)
+    target.ctx.drawImage(image, 0, 0)
+  }
 
-  // lookup uniforms
-  let matrixLocation
-  let textureLocation
+  window.drawAllTargets = async () => {
+    rootCtx.clearRect(0, 0, rootCanvas.width, rootCanvas.height)
+    targets.forEach((target, id) => {
+      console.log(target)
+      rootCtx.drawImage(target.canvas, target.x, target.y)
+    })
+  }
 
-  // Create a buffer.
-  let positionBuffer
-  // Create a buffer for texture coords
-  let texcoordBuffer
-  
   window.createImage = async (url, id) => {
     // Create new image object.
     const img = new Image()
@@ -52,229 +48,16 @@
     // Wait until image loads
     await new Promise((resolve) => {
       img.onload = (ev) => {
-        resolve(ev.path[0])
+        resolve(ev)
       }
     })
 
-    // Get image width and heeight
-    const imgWidth = img.width || img.naturalWidth
-    const imgHeight = img.height || img.naturalHeight
-
-    // Draw image on canvas and get data back in RBGA format.
-    canvas2DCtx.drawImage(img, 0, 0, imgWidth, imgHeight)
-    const data = canvas2DCtx.getImageData(0, 0, imgWidth, imgHeight).data
-
-    // Clear canvas.
-    canvas2DCtx.clearRect(0, 0, img.width, img.height)
-    
-    // Send data back to C# as JSON so it can be rendered by Webgl.
-    return JSON.stringify({
-      data: Array.from(data)
-    })
-
+    images.set(id, img)
   }
-
-  window.initializeGL = async () => {
-    // setup glSL program
-    program = webglUtils.createProgramFromScripts(gl, ["drawImage-vertex-shader", "drawImage-fragment-shader"])
-
-    // look up where the vertex data needs to go.
-    positionLocation = gl.getAttribLocation(program, "a_position")
-    texcoordLocation = gl.getAttribLocation(program, "a_texcoord")
-
-    // lookup uniforms
-    matrixLocation = gl.getUniformLocation(program, "u_matrix")
-    textureLocation = gl.getUniformLocation(program, "u_texture")
-
-    // Create a buffer.
-    positionBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
-
-    // Put a unit quad in the buffer
-    var positions = [
-      0, 0,
-      0, 1,
-      1, 0,
-      1, 0,
-      0, 1,
-      1, 1,
-    ]
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
-
-    texcoordBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer)
-
-    // Put texcoords in the buffer
-    var texcoords = [
-      0, 0,
-      0, 1,
-      1, 0,
-      1, 0,
-      0, 1,
-      1, 1,
-    ]
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texcoords), gl.STATIC_DRAW)
-  }
-
-  window.drawRootTarget = async (dstX, dstY) => {
-      //webglUtils.resizeCanvasToDisplaySize(gl.canvas)
-
-      // Bind framebuffer
-      gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-      
-      // Bind texture
-      gl.bindTexture(gl.TEXTURE_2D, rootTexture);
-
-      // Tell Webgl to use our shader program pair
-      gl.useProgram(program)
-
-      // Setup the attributes to pull data from our buffers
-      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
-      gl.enableVertexAttribArray(positionLocation)
-      gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
-      gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer)
-      gl.enableVertexAttribArray(texcoordLocation)
-      gl.vertexAttribPointer(texcoordLocation, 2, gl.FLOAT, false, 0, 0)
-
-      // this matrix will convert from pixels to clip space
-      var matrix = m4.orthographic(0, gl.canvas.width, gl.canvas.height, 0, -1, 1)
-
-      // this matrix will translate our quad to dstX, dstY
-      matrix = m4.translate(matrix, dstX, dstY, 0)
-
-      // this matrix will scale our 1 unit quad
-      // from 1 unit to gl.canvas.width, gl.canvas.height units
-      matrix = m4.scale(matrix, gl.canvas.width, gl.canvas.height, 1)
-
-      // Set the matrix.
-      gl.uniformMatrix4fv(matrixLocation, false, matrix)
-
-      // Tell the shader to get the texture from texture unit 0
-      gl.uniform1i(textureLocation, 0)
-
-      // draw the quad (2 triangles, 6 vertices)
-      gl.drawArrays(gl.TRIANGLES, 0, 6)
-  }
-
-  window.createTarget = async (id) => {
-    const texture = textures.get(id)
-    const fb = gl.createFramebuffer()
-
-    gl.bindTexture(gl.TEXTURE_2D, texture.tex)
-
-     // define size and format of level 0
-    const level = 0;
-    const internalFormat = gl.RGBA;
-    const border = 0;
-    const format = gl.RGBA;
-    const type = gl.UNSIGNED_BYTE;
-    const data = null;
-    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
-                  1920, 1080, border,
-                  format, type, data);
-  
-    // set the filtering so we don't need mips
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    targets.set(id, fb)
-  }
-
-  // Draw on the texture.
-  window.blitOnTarget = (id, width, height) => {
-    const fb = targets.get(id)
-    const texture = textures.get(id)
-
-    
-    // render to our targetTexture by binding the framebuffer
-    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
-
-    // render cube with our 3x2 texture
-    gl.bindTexture(gl.TEXTURE_2D, texture.tex);
-
-    // Tell WebGL how to convert from clip space to pixels
-    gl.viewport(0, 0, width, height); // Target texture width and height
- 
-    // Clear the attachment(s).
-    // gl.clearColor(0, 0, 1, 1);   // clear to blue
-    // gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
-  }
-
-  window.blitOnRoot = () => {
-    targets.forEach((target, id) => {
-      // render to our targetTexture by binding the framebuffer
-      gl.bindFramebuffer(gl.FRAMEBUFFER, target);
-  
-      // render cube with our 3x2 texture
-      gl.bindTexture(gl.TEXTURE_2D, textures.get(id).tex);
-  
-      // Tell WebGL how to convert from clip space to pixels
-      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-  
-      // Clear the attachment(s).
-      //gl.clearColor(0, 0, 1, 1);   // clear to blue
-      //gl.clear(gl.COLOR_BUFFER_BIT| gl.DEPTH_BUFFER_BIT);
-    })
-  }
-
-  window.clearTexture = async (id) => {
-    textures.get(id)
-  }
-
-  window.loadImageAndCreateTextureInfo = async (url, id) => {
-    const tex = gl.createTexture()
-    gl.bindTexture(gl.TEXTURE_2D, tex)
-    // Fill the texture with a 1x1 blue pixel.
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-                  new Uint8Array([0, 0, 255, 255]))
-
-    
-    // let's assume all images are not a power of 2
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-
-    var textureInfo = {
-      id: id,
-      width: 1,   // we don't know the size until it loads
-      height: 1,
-      tex: tex
-    }
-
-    var img = new Image()
-    img.src = url
-
-    // Wait until image loads
-    await new Promise((resolve) => {
-      img.onload = (ev) => {
-        resolve(ev.path[0])
-      }
-    })
-
-    const imgWidth = img.width || img.naturalWidth
-    const imgHeight = img.height || img.naturalHeight
-
-    textureInfo.width = imgWidth
-    textureInfo.height = imgHeight
-    textureInfo.text
-
-    gl.bindTexture(gl.TEXTURE_2D, tex)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img)
-
-    textures.set(id, textureInfo)
-
-    return JSON.stringify(textureInfo)
-  }
-
-  
   (async () => {
-    await initializeGL()
-    const { id, width, height } = await loadImageAndCreateTextureInfo("https://localhost:5001/assets/doll.png")
-    await createTarget(id)
-    await blitOnTarget(id, width, height)
-    await blitOnRoot()
-    await drawRootTarget(0, 0)
+    await window.createImage("https://localhost:5001/assets/doll.png", 'derp')
+    await window.createTarget('derp', 0, 0)
+    await window.drawOnTarget('derp')
+    await window.drawAllTargets()
   })()
-  
 })()
