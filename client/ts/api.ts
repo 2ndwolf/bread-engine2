@@ -1,5 +1,5 @@
 (() => {
-  const _window = window as any
+  const _window = (window as any)
   const rootCanvas: HTMLCanvasElement = document.getElementById("root-canvas") as any
   const rootCtx: CanvasRenderingContext2D = rootCanvas.getContext('2d')
 
