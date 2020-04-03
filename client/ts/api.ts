@@ -1,14 +1,22 @@
-(function() {
-  const rootCanvas = document.getElementById("root-canvas")
-  const rootCtx = rootCanvas.getContext('2d')
+(() => {
+  const _window = window as any
+  const rootCanvas: HTMLCanvasElement = document.getElementById("root-canvas") as any
+  const rootCtx: CanvasRenderingContext2D = rootCanvas.getContext('2d')
+
+  interface RenderTarget {
+    canvas: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number
+  }
 
   // Render targets
   // Targets should map to textures in C# / ECS, not here.
   // So no mapping is nessecary here between the two.
-  const targets = new Map()
-  const textures = new Map()
+  const targets = new Map<string, RenderTarget>()
+  const textures = new Map<string, HTMLImageElement>()
 
-  window.createTexture = async (textureId, url) => {
+  _window.createTexture = async (textureId: string, url: string) => {
     // Create new texture object.
     const img = new Image()
     img.id = textureId
@@ -26,11 +34,11 @@
     return textureId
   }
 
-  window.deleteTexture = async (textureId) => {
+  _window.deleteTexture = async (textureId: string) => {
     textures.delete(textureId)
   }
 
-  window.createTarget = async (targetId, x, y, width, height) => {
+  _window.createTarget = async (targetId: string, x: number, y: number, width: number, height: number) => {
     const canvas = document.createElement('canvas')
     canvas.width = width
     canvas.height = height
@@ -49,45 +57,37 @@
     return targetId
   }
 
-  window.deleteTarget = async (targetId) => {
+  _window.deleteTarget = async (targetId: string) => {
     targets.delete(targetId)
     const canvas = document.getElementById(targetId)
     canvas.parentElement.removeChild(canvas)
   }
 
-  window.drawOnTarget = (targetId, textureId, x, y) => {
+  _window.drawOnTarget = (targetId: string, textureId: string, x: number, y: number) => {
     const target = targets.get(targetId)
     const texture = textures[textureId]
     target.ctx.drawImage(texture, x, y)
   }
 
-  window.setTargetPos = (targetId, x, y) => {
+  _window.setTargetPos = (targetId: string, x: number, y: number) => {
     const target = targets.get(targetId)
     target.x = x
     target.y = y
   }
 
-  window.drawSingleTarget = async () => {
+  _window.drawSingleTarget = async (targetId: string) => {
+    const target = targets.get(targetId)
     rootCtx.drawImage(target.canvas, target.x, target.y)
   }
   
-  window.drawAllTargets = async () => {
-    targets.forEach((target, targetId) => {
+  _window.drawAllTargets = async () => {
+    targets.forEach((target: RenderTarget, targetId: string) => {
       rootCtx.drawImage(target.canvas, target.x, target.y)
     })
   }
 
-  window.clearRootCanvas = async () => {
+  _window.clearRootCanvas = async () => {
     rootCtx.clearRect(0, 0, rootCanvas.width, rootCanvas.height)
   }
-
-  (async () => {
-    /*
-    const index = await window.createTexture("herp", "https://localhost:5001/assets/doll.png")
-    await window.createTarget('derp', 0, 0)
-    await window.drawOnTarget('derp', )
-    await window.drawAllTargets()
-    */
-  })()
 
 })()
