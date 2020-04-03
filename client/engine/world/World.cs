@@ -7,7 +7,7 @@ using LegendOfWorlds.Engine.Ecs;
 using LegendOfWorlds.Loaders;
 
 
-using Microsoft.JSInterop;
+//using Microsoft.JSInterop;
 
 namespace LegendOfWorlds.Engine {
   public struct System {
@@ -32,19 +32,19 @@ namespace LegendOfWorlds.Engine {
     public static WebGLContext GL;
     public static Dictionary<int, WebGLContext> canvases;
 
-    public static IJSRuntime jsRuntime;
+    //public static IJSRuntime jsRuntime;
 
-    public World(IJSRuntime _jsRuntime) {
-      jsRuntime = _jsRuntime;
-    }
+    //public World(IJSRuntime _jsRuntime) {
+    //  jsRuntime = _jsRuntime;
+    //}
 
 
     public static async Task Init(WebGLContext baseContext) {
-      Image.Image img = Loaders.Loaders.OpenImageFile("https://localhost:5001/assets/images/body.png").Result;
+      //Image.Image img = Loaders.Loaders.OpenImageFile("https://localhost:5001/assets/images/body.png").Result;
       // Initialize Canvas
       GL = baseContext;
-      canvases = new Dictionary<int, WebGLContext>();
-      canvases.Add(-1, GL);
+      //canvases = new Dictionary<int, WebGLContext>();
+      //canvases.Add(-1, GL);
 
       // Initialize systems.
       Systems.Init();
@@ -53,9 +53,9 @@ namespace LegendOfWorlds.Engine {
       Events.Init();
 
       // Initialize game loop and render loop.
-      Task.Run(Render);
-      Task.Run(Update);
-      Task.Run(UpdateVM);
+      //Task.Run(Render);
+      //Task.Run(Update);
+      //Task.Run(UpdateVM);
       await RenderTest();
     }
 

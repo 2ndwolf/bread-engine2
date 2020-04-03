@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blazor.Extensions.Canvas" Version="1.1.0-preview1" />
     <PackageReference Include="Fluent.IL" Version="1.0.0-alpha9" />
     <PackageReference Include="Jint" Version="2.11.58" />
     <PackageReference Include="MessagePack" Version="2.1.90" />
@@ -23,6 +22,7 @@
     <ProjectReference Include="..\libs\Audrey\Audrey\Audrey.csproj" />
     <ProjectReference Include="..\libs\JanusLiteNetLib\Janus\Janus.csproj" />
     <ProjectReference Include="..\libs\eeNet\EventEmitter\EventEmitter.csproj" />
+    <ProjectReference Include="..\libs\Canvas\src\Blazor.Extensions.Canvas\Blazor.Extensions.Canvas.csproj" />
   </ItemGroup>
   
 </Project>

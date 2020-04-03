@@ -1,22 +1,20 @@
 @page "/"
-@using Microsoft.AspNetCore.Builder
-@using Microsoft.AspNetCore.Components.Builder
-@using System.Net.Http
 @using System.Threading.Tasks
-@using Microsoft.JSInterop
-@inject IJSRuntime JSRuntime
 
-<BECanvas Width="1280" Height="720" @ref="@_canvasReference" ></BECanvas>
+<BECanvas Width="1280" Height="720" @ref="_canvasReference" ></BECanvas>
 
 @code {
+    private WebGLContext _context;
+
     protected BECanvasComponent _canvasReference;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var baseContext = await this._canvasReference.CreateWebGLAsync();
-        await JSRuntime.InvokeAsync<object>("initializeGL", new object[]{"null"});
-        new LegendOfWorlds.Engine.World(JSRuntime);
-        await LegendOfWorlds.Engine.World.Init(baseContext);
-      
+        this._context = await this._canvasReference.CreateWebGLAsync();
+        
+        await this._context.ClearColorAsync(0, 0, 0, 1);
+        await this._context.ClearAsync(BufferBits.COLOR_BUFFER_BIT);
+        await LegendOfWorlds.Engine.World.Init(_context);
     }
 
 }
