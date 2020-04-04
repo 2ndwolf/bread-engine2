@@ -13,6 +13,8 @@ namespace LegendOfWorlds.Engine {
     public Action action;
 
     public static System create(Action _action) {
+      // Abstracts so that when you pass the action (which is just a function)
+      // you also get the name of it.
       return new System() { name=nameof(_action), action=_action };
     }
   }
@@ -52,7 +54,6 @@ namespace LegendOfWorlds.Engine {
       Task.Run(Render);
       Task.Run(Update);
       Task.Run(UpdateVM);
-      await RenderTest();
     }
 
     public static async Task Render() {

@@ -14,8 +14,9 @@ namespace LegendOfWorlds.Engine {
     
     public static void Init() {
       AddEvent(BootstrapPlayer);
+
       EmitEvent(BootstrapPlayer, "Hello world!");
     }
-
+ 
   }
 }

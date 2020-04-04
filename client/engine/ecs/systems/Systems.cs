@@ -10,4 +10,4 @@ namespace LegendOfWorlds.Engine.Ecs {
       World.renderSystems.Add(System.create(RenderSystem));
     }
   }
-}
+} 
