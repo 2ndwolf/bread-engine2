@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Blazor.Extensions.Canvas.WebGL;
 using eeNet;
 using LegendOfWorlds.Engine.Ecs;
-
 using Microsoft.JSInterop;
 
 namespace LegendOfWorlds.Engine {
@@ -58,6 +57,7 @@ namespace LegendOfWorlds.Engine {
 
     public static async Task Render() {
       for(;;) {
+        await LegendOfWorlds.Utils.Render.clearRootCanvas();
         renderSystems.ForEach((System system) => {
           system.action();
         });
