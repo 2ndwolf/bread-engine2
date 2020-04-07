@@ -36,11 +36,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var _this = this;
 (function () {
-    /* tslint:disable */
     var _window = window;
-    /* tslint:disable */
     var rootCanvas = document.getElementById("root-canvas");
     var rootCtx = rootCanvas.getContext('2d');
+    rootCanvas.width = 1920;
+    rootCanvas.height = 1280;
     // Render targets
     // Targets should map to textures in C# / ECS, not here.
     // So no mapping is nessecary here between the two.
@@ -74,20 +74,18 @@ var _this = this;
             return [2 /*return*/];
         });
     }); };
-    _window.createTarget = function (targetId, x, y, width, height) { return __awaiter(_this, void 0, void 0, function () {
+    _window.createTarget = function (targetId, width, height) { return __awaiter(_this, void 0, void 0, function () {
         var canvas, ctx;
         return __generator(this, function (_a) {
             canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
+            canvas.width = 1920;
+            canvas.height = 1280;
             canvas.id = targetId;
             ctx = canvas.getContext('2d');
             // schema for targets
             targets.set(targetId, {
                 canvas: canvas,
-                ctx: ctx,
-                x: x,
-                y: y
+                ctx: ctx
             });
             return [2 /*return*/, targetId];
         });
@@ -103,27 +101,15 @@ var _this = this;
     }); };
     _window.drawOnTarget = function (targetId, textureId, x, y) {
         var target = targets.get(targetId);
-        var texture = textures[textureId];
+        var texture = textures.get(textureId);
         target.ctx.drawImage(texture, x, y);
     };
-    _window.setTargetPos = function (targetId, x, y) {
-        var target = targets.get(targetId);
-        target.x = x;
-        target.y = y;
-    };
-    _window.drawSingleTarget = function (targetId) { return __awaiter(_this, void 0, void 0, function () {
+    _window.drawSingleTarget = function (targetId, x, y) { return __awaiter(_this, void 0, void 0, function () {
         var target;
         return __generator(this, function (_a) {
             target = targets.get(targetId);
-            rootCtx.drawImage(target.canvas, target.x, target.y);
-            return [2 /*return*/];
-        });
-    }); };
-    _window.drawAllTargets = function () { return __awaiter(_this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            targets.forEach(function (target, targetId) {
-                rootCtx.drawImage(target.canvas, target.x, target.y);
-            });
+            console.log(target.canvas.width);
+            rootCtx.drawImage(target.canvas, x, y);
             return [2 /*return*/];
         });
     }); };

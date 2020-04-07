@@ -9,9 +9,9 @@ using Microsoft.JSInterop;
 namespace LegendOfWorlds.Engine {
   public struct System {
     public string name;
-    public Action action;
+    public Func<Task> action;
 
-    public static System create(Action _action) {
+    public static System create(Func<Task> _action) {
       // Abstracts so that when you pass the action (which is just a function)
       // you also get the name of it.
       return new System() { name=nameof(_action), action=_action };
@@ -28,50 +28,46 @@ namespace LegendOfWorlds.Engine {
     public static EventEmitter EE = new EventEmitter();
 
     // Rendering
-    public static WebGLContext GL;
-    public static Dictionary<int, WebGLContext> canvases;
-
     public static IJSRuntime jsRuntime;
 
     public World(IJSRuntime _jsRuntime) {
       jsRuntime = _jsRuntime;
     }
 
-    public static async Task Init(WebGLContext baseContext) {
-      // Initialize Canvas
-      GL = baseContext;
-      canvases = new Dictionary<int, WebGLContext>();
-      canvases.Add(-1, GL);
-
-      // Initialize systems.
-      Systems.Init();
-
+    public static void Init() {
       // Intiailize events.
       Events.Init();
 
       // Initialize game loop and render loop.
       Task.Run(Render);
-      Task.Run(Update);
-      Task.Run(UpdateVM);
+
+      // Task.Run(Update);
+      // Task.Run(UpdateVM);
+    
     }
 
     public static async Task Render() {
       for(;;) {
         await LegendOfWorlds.Utils.Render.clearRootCanvas();
-        renderSystems.ForEach((System system) => {
-          system.action();
-        });
+         
+        foreach(System system in renderSystems) {
+          await system.action();
+        }
+        
         await Task.Delay(8);
       }
     }
 
     public static async Task Update() {
+      /*
       for(;;) {
+        
         systems.ForEach((System system) => {
-          system.action();
+          await system.action();
         });
         await Task.Delay(16);
       }
+      */
     }
 
     public static async Task UpdateVM() {

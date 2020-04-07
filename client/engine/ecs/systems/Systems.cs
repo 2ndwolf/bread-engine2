@@ -6,7 +6,7 @@ namespace LegendOfWorlds.Engine.Ecs {
       // Game logic systems
 
       // Render systems
-      World.renderSystems.Add(System.create(RenderSystem));
+      World.renderSystems.Add(System.create(GlobalRenderSystem));
     }
   }
 } 

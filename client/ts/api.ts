@@ -2,12 +2,12 @@
   const _window = (window as any)
   const rootCanvas: HTMLCanvasElement = document.getElementById("root-canvas") as any
   const rootCtx: CanvasRenderingContext2D = rootCanvas.getContext('2d')
+  rootCanvas.width = 1920
+  rootCanvas.height = 1280
 
   interface RenderTarget {
     canvas: HTMLCanvasElement,
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number
+    ctx: CanvasRenderingContext2D
   }
 
   // Render targets
@@ -38,10 +38,10 @@
     textures.delete(textureId)
   }
 
-  _window.createTarget = async (targetId: string, x: number, y: number, width: number, height: number) => {
+  _window.createTarget = async (targetId: string, width: number, height: number) => {
     const canvas = document.createElement('canvas')
-    canvas.width = width
-    canvas.height = height
+    canvas.width = 1920
+    canvas.height = 1280
     canvas.id = targetId
 
     const ctx = canvas.getContext('2d')
@@ -49,9 +49,7 @@
     // schema for targets
     targets.set(targetId, {
       canvas,
-      ctx,
-      x,
-      y
+      ctx
     })
     
     return targetId
@@ -65,27 +63,17 @@
 
   _window.drawOnTarget = (targetId: string, textureId: string, x: number, y: number) => {
     const target = targets.get(targetId)
-    const texture = textures[textureId]
+    const texture = textures.get(textureId)
+
     target.ctx.drawImage(texture, x, y)
   }
 
-  _window.setTargetPos = (targetId: string, x: number, y: number) => {
+  _window.drawSingleTarget = async (targetId: string, x: number, y: number) => {
     const target = targets.get(targetId)
-    target.x = x
-    target.y = y
-  }
-
-  _window.drawSingleTarget = async (targetId: string) => {
-    const target = targets.get(targetId)
-    rootCtx.drawImage(target.canvas, target.x, target.y)
+    console.log(target.canvas.width)
+    rootCtx.drawImage(target.canvas, x, y)
   }
   
-  _window.drawAllTargets = async () => {
-    targets.forEach((target: RenderTarget, targetId: string) => {
-      rootCtx.drawImage(target.canvas, target.x, target.y)
-    })
-  }
-
   _window.clearRootCanvas = async () => {
     rootCtx.clearRect(0, 0, rootCanvas.width, rootCanvas.height)
   }
