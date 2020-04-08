@@ -1,9 +1,12 @@
 ﻿using System;
+using System.IO;
+using System.Web;
+using System.Drawing;
+using System.Drawing.Imaging;
 using EmbedIO;
 using EmbedIO.WebApi;
 using EmbedIO.Actions;
 using EmbedIO.Routing;
-using System.Web;
 
 namespace server
 {
@@ -45,7 +48,17 @@ namespace server
               .WithUrlPrefix(url)
               .WithMode(HttpListenerMode.EmbedIO))
               .WithLocalSessionManager()
-              .WithModule(new ActionModule("/api/assets", HttpVerbs.Get, ctx => ctx.SendDataAsync(new { Derp = "Herp" })));
+              .WithModule(new ActionModule(
+                "/api/assets", 
+                HttpVerbs.Get, 
+                ctx => {
+                  var stream = new MemoryStream();
+                  Image img = Image.FromFile("../client/wwwroot/assets/doll.png");
+                  img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                  var bitmapData = stream.ToArray();
+                  return ctx.SendDataAsync(new { Width=img.Width, Height=img.Height, Data=bitmapData});
+                }
+              ));
             return server;
         }
         /*
