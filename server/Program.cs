@@ -1,15 +1,35 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.IO;
-using System.Web;
 using System.Drawing;
-using System.Drawing.Imaging;
 using EmbedIO;
 using EmbedIO.WebApi;
-using EmbedIO.Actions;
 using EmbedIO.Routing;
+using FlatSharp;
+using Shared.FlatBuffers;
 
 namespace server
 {
+    public sealed class AssetController : WebApiController
+    {
+        [Route(HttpVerbs.Get, "/assets/{filename?}")]
+        public async Task GetAsset(string filename) 
+        {
+          var ctx = HttpContext;
+          var stream = new MemoryStream();
+          
+          Image img = Image.FromFile("./assets/" + filename);
+          img.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+          var bitmapData = stream.ToArray();
+
+          LoWImage lowImage = new LoWImage(){ width=100, height=100, data=bitmapData };
+          int maxBytesNeeded = FlatBufferSerializer.Default.GetMaxSize(lowImage);
+          byte[] buffer = new byte[maxBytesNeeded];
+          int bytesWritten = FlatBufferSerializer.Default.Serialize(lowImage, buffer);
+          await ctx.SendDataAsync(bytesWritten);
+        }
+        
+    }
 
     class Program
     {
@@ -48,27 +68,10 @@ namespace server
               .WithUrlPrefix(url)
               .WithMode(HttpListenerMode.EmbedIO))
               .WithLocalSessionManager()
-              .WithModule(new ActionModule(
-                "/api/assets", 
-                HttpVerbs.Get, 
-                ctx => {
-                  var stream = new MemoryStream();
-                  Image img = Image.FromFile("../client/wwwroot/assets/doll.png");
-                  img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                  var bitmapData = stream.ToArray();
-                  return ctx.SendDataAsync(new { Width=img.Width, Height=img.Height, Data=bitmapData});
-                }
-              ));
+              .WithWebApi("/api", m => m
+                    .WithController<AssetController>());
             return server;
         }
-        /*
-        [Route(HttpVerbs.Get, "/binary")]
-        public async Task GetBinary() 
-        {
-          // Call a fictional external source
-         using (var stream = HttpContext.OpenResponseStream())
-                    await stream.WriteAsync(dataBuffer, 0, 0);
-        }
-        */
+        
     }
 }
