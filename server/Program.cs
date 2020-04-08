@@ -22,7 +22,7 @@ namespace server
           img.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
           var bitmapData = stream.ToArray();
 
-          LoWImage lowImage = new LoWImage(){ width=100, height=100, data=bitmapData };
+          LoWImage lowImage = new LoWImage(){ width=img.Width, height=img.Height, data=bitmapData };
 
           int maxBytesNeeded = FlatBufferSerializer.Default.GetMaxSize(lowImage);
           byte[] buffer = new byte[maxBytesNeeded];
