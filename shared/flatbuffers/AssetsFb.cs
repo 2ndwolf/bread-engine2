@@ -3,7 +3,7 @@ using FlatSharp.Attributes;
 using FlatSharp.TypeModel;
 
 namespace Shared.FlatBuffers {
-   [FlatBufferTable]
+    [FlatBufferTable]
     public class LoWImage : object
     {   
         [FlatBufferItem(0)] public virtual int width { get; set; }

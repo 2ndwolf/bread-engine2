@@ -23,12 +23,13 @@ namespace server
           var bitmapData = stream.ToArray();
 
           LoWImage lowImage = new LoWImage(){ width=100, height=100, data=bitmapData };
+
           int maxBytesNeeded = FlatBufferSerializer.Default.GetMaxSize(lowImage);
           byte[] buffer = new byte[maxBytesNeeded];
           int bytesWritten = FlatBufferSerializer.Default.Serialize(lowImage, buffer);
+          
           await ctx.SendDataAsync(bytesWritten);
         }
-        
     }
 
     class Program
