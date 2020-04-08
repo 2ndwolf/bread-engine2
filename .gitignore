@@ -5,3 +5,5 @@ converter/bin
 converter/obj
 shared/bin
 shared/obj
+server/bin
+server/obj
