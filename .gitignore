@@ -3,3 +3,5 @@ client/obj
 client/ts/node_modules
 converter/bin
 converter/obj
+shared/bin
+shared/obj
