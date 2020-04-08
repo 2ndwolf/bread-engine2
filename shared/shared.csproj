@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\shared\shared.csproj" />
+    <PackageReference Include="FlatSharp" Version="3.0.0" />
   </ItemGroup>
 
 </Project>
