@@ -1,269 +1,192 @@
 using System;
-using System.Net.Http;
 using Blazor.Extensions.Canvas.WebGL;
 using System.Threading.Tasks;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Collections.Generic;
+using LegendOfWorlds.Loaders;
+using LegendOfWorlds.Data;
+using M4; 
+
 
 namespace LegendOfWorlds.Engine {
-  public class TextureInfo {
-      public string id { get; set; }
-      public int width { get; set; }
-      public int height { get; set; }
-  }
 
   public partial class World {
+    public struct Texture {
+        public int x, y, width, height;
+        public float scaleX, scaleY, radians;
+        public bool loaded;
+        public WebGLTexture texture;
+        public string name;
+
+        public float[] finalMatrix;
+
+    }
+    public struct RenderTarget {
+        public float width, height, x, y;
+        public Texture texture;
+        // public float[] finalMatrix;
+
+    }
+
+    public static float[] emptyMatrix = new float[16];
+
+    public static WebGLProgram program;
+    public static int positionLocation, texcoordLocation;
+    public static WebGLUniformLocation matrixLocation, textureLocation, textureMatrixLocation;
+    public static WebGLBuffer texPositionBuffer, texcoordBuffer;
+    public static WebGLTexture glTex;
+
+    public static Dictionary<Guid, Texture> textures = new Dictionary<Guid, Texture>();
+    public static Dictionary<Guid, RenderTarget> renderTargets = new Dictionary<Guid, RenderTarget>();
+
+    // public static Matrix identity = new Matrix();
+
+
     public static async Task RenderTest() {
       Console.WriteLine("Initializing WebGL");
       await InitWebGL();
       Console.WriteLine("WebGL initialized");
 
+
       //await RenderSquare();
+      Guid rndr1 = await CreateRenderTarget(Guid.NewGuid(), 10, 10, 2048, 512);
+      Guid rndr2 = await CreateRenderTarget(Guid.NewGuid(), 100, 100, 100, 100);
 
-      Texture texMaker = new Texture();
-      await texMaker.CreateTexture();
-      //RenderSquare();
+
+      Guid tex1 = await CreateTexture(Guid.NewGuid(), "./assets/images/pics1_dyl.png");
+      Guid tex2 = await CreateTexture(Guid.NewGuid(), "./assets/images/bomb1.png");
+
+      await TexToTarget(tex1, rndr1);
+      await TexToTarget(tex2, rndr2);
+
+      //await RenderSquare();
     }
 
-    public static async Task<bool> RenderSquare(){
-      await GL.BeginBatchAsync(); // begin the explicit batch
-
-await GL.ClearAsync(BufferBits.COLOR_BUFFER_BIT);
-await GL.DrawArraysAsync(Primitive.TRIANGLES, 0, 3);
-      await GL.EndBatchAsync(); // execute all currently batched calls
-
-      return true;
-
-    }
-
-    public static async Task<bool> InitWebGL(){
-      string vertexShaderSource = 
-      @"
-        attribute vec4 positionLocation;
-        attribute vec2 texcoordLocation;
-        
-        uniform mat4 matrixLocation;
-        uniform mat4 textureMatrixLocation;
-        
-        varying vec2 v_texcoord;
-        
-        void main(void) {
-        gl_Position = matrixLocation * positionLocation;
-        v_texcoord = (textureMatrixLocation * vec4(texcoordLocation, 0, 1)).xy;
-        }
-        
-      ";
-
-      string fragmentShaderSource =
-      @"
-        precision mediump float;
-        
-        varying vec2 v_texcoord;
-        
-        uniform sampler2D textureLocation;
-        
-        void main(void) {
-        gl_FragColor = texture2D(textureLocation, v_texcoord);
-        }
-
-      ";
-
-
-      WebGLShader vertexShader = await CreateShader(ShaderType.VERTEX_SHADER, vertexShaderSource);
-      WebGLShader fragmentShader = await CreateShader(ShaderType.FRAGMENT_SHADER, fragmentShaderSource);
-
-      WebGLProgram program = await createProgram(vertexShader, fragmentShader);
-
-      var positionLocation = await GL.GetAttribLocationAsync(program, "positionLocation");
-      var texcoordLocation = await GL.GetAttribLocationAsync(program, "texcoordLocation");
-      var matrixLocation = await GL.GetUniformLocationAsync(program, "matrixLocation");
-      var textureMatrixLocation = await GL.GetUniformLocationAsync(program, "textureMatrixLocation");
-      var textureLocation = await GL.GetUniformLocationAsync(program, "textureLocation");
-
-      var texPositionBuffer = await GL.CreateBufferAsync();
-      await GL.BindBufferAsync(BufferType.ARRAY_BUFFER, texPositionBuffer);
-      float[] positions = {0F, 0F, 0F, 1F, 1F, 0F, 1F, 0F, 0F, 1F, 1F, 1F};
-      await GL.BufferDataAsync(BufferType.ARRAY_BUFFER, positions, BufferUsageHint.STATIC_DRAW);
-
-      var texcoordBuffer = await GL.CreateBufferAsync();
-      await GL.BindBufferAsync(BufferType.ARRAY_BUFFER, texcoordBuffer);
-      float[] texcoords = {0F, 0F, 0F, 1F, 1F, 0F, 1F, 0F, 0F, 1F, 1F, 1F};
-      await GL.BufferDataAsync(BufferType.ARRAY_BUFFER, texcoords, BufferUsageHint.STATIC_DRAW);
-
-      await GL.DisableAsync(EnableCap.DEPTH_TEST);
-      await GL.EnableAsync(EnableCap.BLEND);
-      await GL.BlendEquationAsync(BlendingEquation.FUNC_ADD);
-
-      //Do not assume the values are premultiplied ( if alpha = 0 then rgb should = 0)
-      await GL.BlendFuncSeparateAsync(BlendingMode.SRC_ALPHA, BlendingMode.ONE_MINUS_SRC_ALPHA, BlendingMode.ONE, BlendingMode.ONE_MINUS_SRC_ALPHA);
-
-    return true;
-    }
-
-    private static async Task<WebGLShader> CreateShader(ShaderType type,string source) {
-      WebGLShader shader = await GL.CreateShaderAsync(type);
-      await GL.ShaderSourceAsync(shader, source);
-      await GL.CompileShaderAsync(shader);
-      bool success = await GL.GetShaderParameterAsync<bool>(shader, ShaderParameter.COMPILE_STATUS);
-      if (success) {
-        return shader;
-      }
-
-      Console.WriteLine("Shader compilation failure.");
-      await GL.DeleteShaderAsync(shader);
-      return null;
-    }
-
-    private static async Task<WebGLProgram> createProgram(WebGLShader vertexShader,WebGLShader fragmentShader) {
-      WebGLProgram program = await GL.CreateProgramAsync();
-      await GL.AttachShaderAsync(program, vertexShader);
-      await GL.AttachShaderAsync(program, fragmentShader);
-      await GL.LinkProgramAsync(program);
-      bool success = await GL.GetProgramParameterAsync<bool>(program, ProgramParameter.LINK_STATUS);
-      if (success) {
-        return program;
-      }
-    
-      Console.WriteLine(await GL.GetProgramInfoLogAsync(program));
-      //await GL.DeleteProgramAsync(program);
-      return null;
-    }
-
-    public static async void DrawImage(){
-
-    }
-
-    public class Texture{
-
-      public struct TextureInfo {
-        public int width;
-        public int height;
-        public bool loaded;
-        public WebGLTexture texture;
-        public string name;
-
-      }
-
-      public async Task<TextureInfo> CreateTexture(){
-
-        WebGLTexture glTex = await GL.CreateTextureAsync();
-
-        TextureInfo tex = new TextureInfo();
-        tex.width = 100;
-        tex.height = 100;
-        tex.loaded = true;
-        tex.texture = glTex;
-        tex.name = "woohoo";
-
-        await GL.BindTextureAsync(TextureType.TEXTURE_2D, glTex);
-
-        await GL.TexImage2DAsync(Texture2DType.TEXTURE_2D, 0, PixelFormat.RGBA, 1, 1, 0, PixelFormat.RGBA, PixelType.UNSIGNED_BYTE, new byte[] {0,0,255,255});
-
-        await GL.TexParameterAsync(TextureType.TEXTURE_2D, TextureParameter.TEXTURE_WRAP_S, 33071F);
-        await GL.TexParameterAsync(TextureType.TEXTURE_2D, TextureParameter.TEXTURE_WRAP_T, 33071F);
-        await GL.TexParameterAsync(TextureType.TEXTURE_2D, TextureParameter.TEXTURE_MIN_FILTER, 9729F);
-
-
-
-        return tex;
-      }
-
-    }
-
-      /*
-    public static async Task DrawImage() {
-      var res = await jsRuntime.InvokeAsync<string>("loadImageAndCreateTextureInfo", new object[]{
-        "https://localhost:5001/assets/doll.png", 
-        Guid.NewGuid().ToString()
-      });
-      var textureInfo = JsonSerializer.Deserialize<TextureInfo>(res);
-      await jsRuntime.InvokeAsync<string>("drawImage", new object[] {
-        textureInfo.id, 
-        0,
-        0
-      });
-      await jsRuntime.InvokeAsync<string>("drawImageOnTexture", new object[] {
-        textureInfo.id, 
-        0,
-        0
-      });
-    }
-      */
-
-    /*
-
-    public static async Task DrawImage() {
-      //await jsRuntime.InvokeAsync<string>("window.drawImage", new object[]{"null"});
-      //await jsRuntime.InvokeAsync<object>("initGL", new object[]{"null"});
-      //await jsRuntime.InvokeAsync<object>("window.loadImageAndCreateTextureInfo", new object[]{"https://localhost:5001/assets/doll.png"});
-      //await jsRuntime.InvokeAsync<object>("window.drawImage", new object[]{"null"});
-
-      var program = CreateProgramAsync().Result;
-
-      //var program = GL.CreateProgramFromScripts(gl, new string[] {"drawImage-vertex-shader", "drawImage-fragment-shader"});
-
-      var positionBuffer = await GL.CreateBufferAsync();
-      var texcoordBuffer = await GL.CreateBufferAsync();
-      var positionLocation = await GL.GetAttribLocationAsync(program, "a_position");
-      var texcoordLocation = await GL.GetAttribLocationAsync(program, "a_texcoord");
-      var matrixLocation = await GL.GetUniformLocationAsync(program, "u_matrix");
-      var textureLocation = await GL.GetUniformLocationAsync(program, "u_texture");
-
-
-      await GL.BindTextureAsync(TextureType.TEXTURE_2D, tex);
-      // GL.UseProgram(program);
-      await GL.BindBufferAsync(BufferType.ARRAY_BUFFER, positionBuffer);
-      await GL.EnableVertexAttribArrayAsync(positionLocation);
-
-      await GL.VertexAttribPointerAsync(positionLocation, 2, PixelType.FLOAT, false, 0, 0);
-      await GL.BindBufferAsync(BufferType.ARRAY_BUFFER, texcoordBuffer);
-      await GL.EnableVertexAttribArrayAsync(texcoordLocation);
-      await GL.VertexAttribPointerAsync(texcoordLocation, 2, PixelType.FLOAT, false, 0, 0);
-
-      // this matrix will convert from pixels to clip space
-      var matrix = m4.orthographic(0, GL.canvas.width, GL.canvas.height, 0, -1, 1);
-
-      // this matrix will translate our quad to dstX, dstY
-      matrix = m4.translate(matrix, dstX, dstY, 0);
-
-      // this matrix will scale our 1 unit quad
-      // from 1 unit to texWidth, texHeight units
-      matrix = m4.scale(matrix, texWidth, texHeight, 1);
-
-      // Set the matrix.
-      GL.uniformMatrix4fv(matrixLocation, false, matrix);
-
-      // Tell the shader to get the texture from texture unit 0
-      await GL.UniformAsync(textureLocation, 0);
-
-      // draw the quad (2 triangles, 6 vertices)
-      await GL.DrawArraysAsync(Primitive.TRIANGLES, 0, 6);
-    }
-
-    public static async Task<WebGLTexture> CreateTextureInfo() {
-      // ImageData imgData = await JSRuntime.InvokeAsync<ImageData>("window.createImage", new string[] { "https://localhost:5001/assets/doll.png", "UUID" });
-      //var test = Newtonsoft.Json.JsonConvert.DeserializeObject(imgData.toString());
-
-      var http = new HttpClient();
-      var res = await http.GetAsync("https://localhost:5001/assets/doll.png");
-      var byteArray = await res.Content.ReadAsByteArrayAsync();
-      var img = new LegendOfWorlds.Utils.Image(byteArray, "png");
-      var imgData = img.completeByteImage;
-
-      // WebGL
-      var tex = await GL.CreateTextureAsync();
+    public static async Task TRSRenderTargetTexture(RenderTarget rndr, int x, int y, int width, int height, float scaleX = float.MaxValue, float scaleY = float.MaxValue, float radians = float.MaxValue){
+      Texture tex = rndr.texture;
+      tex.x = x;
+      tex.y = y;
+      tex.width = width;
+      tex.height = height;
+      float[] matrix = await M4.Computations.Translation(x / width, y / height, 0);
       
-      await GL.BindTextureAsync(TextureType.TEXTURE_2D, tex);
+        tex.scaleX = scaleX == float.MaxValue ? tex.scaleX : scaleX;
+        tex.scaleY = scaleY == float.MaxValue ? tex.scaleY : scaleY;
+        tex.radians = radians == float.MaxValue ? tex.radians : radians;
+
+      if(tex.scaleX != 1 || tex.scaleY !=1){
+        float offScale = 1f;
+        //matrix = await M4.Computations.Scale();
+      }
+
+      tex.finalMatrix = matrix;
+      rndr.texture = tex;
+      //M4.Computations.Rotate
+    }
+
+    public static void RotateRenderTargetTexture(){
+      Console.WriteLine("RotateRenderTargetTexture Not implemented yet.");
+    }
+
+    public static async Task ScaleRenderTargetTexture(RenderTarget rndr, float multX, float multY){
+
+
+    }
+
+    //Check if scaling the render target also scales the contained texture
+    public static void ScaleRenderTarget(){
+
+    }
+
+    public static async Task<Guid> CreateTexture(Guid textureId, string url){
+
+
+      Load.ImageWithData png = await Load.LoadImage(url);
+
+      Texture texture = new Texture();
+      texture.x = 0;
+      texture.y =  0;
+      texture.width = png.width;
+      texture.height = png.height;
+      texture.finalMatrix = await M4.Computations.Translation(0,0,0);
+
+      //Create texture holder
+      texture.texture = await GL.CreateTextureAsync();
+      
+      //Load image info in memory
+      await GL.BindTextureAsync(TextureType.TEXTURE_2D, texture.texture);
+      await GL.TexImage2DAsync(Texture2DType.TEXTURE_2D, 0, PixelFormat.RGBA, png.width, png.height, 0, PixelFormat.RGBA, PixelType.UNSIGNED_BYTE, png.data);
+      //Do not assume textures are a power of 2
       await GL.TexParameterAsync(TextureType.TEXTURE_2D, TextureParameter.TEXTURE_WRAP_S, (float) TextureParameterValue.CLAMP_TO_EDGE);
       await GL.TexParameterAsync(TextureType.TEXTURE_2D, TextureParameter.TEXTURE_WRAP_T, (float) TextureParameterValue.CLAMP_TO_EDGE);
       await GL.TexParameterAsync(TextureType.TEXTURE_2D, TextureParameter.TEXTURE_MIN_FILTER, (float) TextureParameterValue.LINEAR);
 
-      await GL.BindTextureAsync(TextureType.TEXTURE_2D, tex);
-      await GL.TexImage2DAsync<byte>(Texture2DType.TEXTURE_2D, 0, PixelFormat.RGBA, 0, 0, PixelFormat.RGBA, PixelType.UNSIGNED_BYTE, imgData);
+      textures[textureId] = texture;
 
-      return tex;
+      return textureId;
     }
-    */
+
+
+    public static async Task<Guid> CreateRenderTarget(Guid targetId, int x, int y, int width, int height){
+      
+      RenderTarget renderTarget = new RenderTarget();
+
+
+      renderTarget.width = (float)width;
+      renderTarget.height = (float)height;
+      renderTarget.x = (float)x;
+      renderTarget.y = (float)y;
+      // renderTarget.finalMatrix = new float[16];
+
+      renderTargets[targetId] = renderTarget;
+
+      return targetId;
+    }
+
+    public static async Task TexToTarget(Guid tex, Guid rndr){
+      Console.WriteLine("Getting renderTarget");
+      RenderTarget render = renderTargets[rndr];
+      Console.WriteLine("Binding texture to renderTarget");
+      textures[tex] = await ComputeTexScaling(textures[tex], render);
+      render.texture = textures[tex];
+      Console.WriteLine("Putting updated renderTarget back in renderTargets");
+      renderTargets[rndr] = render;
+    }
+
+    public static async Task<Texture> ComputeTexScaling(Texture texture, RenderTarget rndr){
+      texture.scaleX = 1;//rndr.naturalWidth / texture.width;
+      texture.scaleY = 1;//rndr.naturalHeight / texture.height;
+      return texture;
+    }
+
+    public static async Task goRender(){
+      
+      await GL.ClearAsync(BufferBits.COLOR_BUFFER_BIT);
+
+
+        foreach(KeyValuePair<Guid, RenderTarget> entry in renderTargets)
+        {
+            var renderTarget = entry.Value;
+
+            await GL.BindTextureAsync(TextureType.TEXTURE_2D, renderTarget.texture.texture);
+
+
+            float[] matrix = await M4.Computations.Translate(ortho, renderTarget.x, renderTarget.y, 0);
+            matrix = await M4.Computations.Scale(matrix, renderTarget.width, renderTarget.height, 0);
+
+            await GL.UniformMatrixAsync(matrixLocation, false, matrix);
+
+
+            //The texture's matrix
+            await GL.UniformMatrixAsync(textureMatrixLocation, false, renderTarget.texture.finalMatrix);
+            
+            await GL.UniformAsync(textureLocation, 0);
+
+            await GL.BeginBatchAsync();
+              await GL.DrawArraysAsync(Primitive.TRIANGLES, 0, 6);
+            await GL.EndBatchAsync();
+        }
+      
+    }
 
   }
 }

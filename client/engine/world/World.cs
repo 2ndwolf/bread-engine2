@@ -2,9 +2,11 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Blazor.Extensions.Canvas.WebGL;
+using System.Runtime.InteropServices;
 using eeNet;
 using LegendOfWorlds.Engine.Ecs;
 using LegendOfWorlds.Loaders;
+using Microsoft.JSInterop;
 
 
 //using Microsoft.JSInterop;
@@ -20,6 +22,7 @@ namespace LegendOfWorlds.Engine {
   }
 
   public partial class World {
+
     // ECS
     public static Audrey.Engine engine = new Audrey.Engine();
     public static List<System> systems = new List<System>();
@@ -32,12 +35,11 @@ namespace LegendOfWorlds.Engine {
     public static WebGLContext GL;
     public static Dictionary<int, WebGLContext> canvases;
 
-    //public static IJSRuntime jsRuntime;
+    public static IJSRuntime jsRuntime;
 
-    //public World(IJSRuntime _jsRuntime) {
-    //  jsRuntime = _jsRuntime;
-    //}
-
+    public World(IJSRuntime _jsRuntime) {
+      jsRuntime = _jsRuntime;
+    }
 
     public static async Task Init(WebGLContext baseContext) {
       //Image.Image img = Loaders.Loaders.OpenImageFile("https://localhost:5001/assets/images/body.png").Result;
@@ -53,18 +55,18 @@ namespace LegendOfWorlds.Engine {
       Events.Init();
 
       // Initialize game loop and render loop.
-      //Task.Run(Render);
       //Task.Run(Update);
       //Task.Run(UpdateVM);
       await RenderTest();
+      Task.Run(Render);
     }
 
     public static async Task Render() {
       for(;;) {
         renderSystems.ForEach((System system) => {
-          system.action();
+          goRender();
         });
-        await Task.Delay(8);
+        await Task.Delay(32);
       }
     }
 
