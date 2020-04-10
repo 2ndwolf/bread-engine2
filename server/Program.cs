@@ -15,11 +15,9 @@ namespace server
         [Route(HttpVerbs.Get, "/assets/{filename?}")]
         public async Task GetAsset(string filename) 
         {
-          var ctx = HttpContext;
           var stream = new MemoryStream();
-          
           Image img = Image.FromFile("./assets/" + filename);
-          img.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+          img.Save(stream, System.Drawing.Imaging.ImageFormat.MemoryBmp);
           var bitmapData = stream.ToArray();
 
           LoWImage lowImage = new LoWImage(){ width=img.Width, height=img.Height, data=bitmapData };
