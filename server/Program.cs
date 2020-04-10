@@ -28,9 +28,6 @@ namespace server
           byte[] buffer = new byte[maxBytesNeeded];
           int bytesWritten = FlatBufferSerializer.Default.Serialize(lowImage, buffer);
 
-
-          // return ctx.SendDataAsync(null, buffer);
-          // Call a fictional external source
           using (var stream2 = HttpContext.OpenResponseStream())
             await stream2.WriteAsync(buffer, 0, bytesWritten);
 
