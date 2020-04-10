@@ -27,8 +27,13 @@ namespace server
           int maxBytesNeeded = FlatBufferSerializer.Default.GetMaxSize(lowImage);
           byte[] buffer = new byte[maxBytesNeeded];
           int bytesWritten = FlatBufferSerializer.Default.Serialize(lowImage, buffer);
-          
-          await ctx.SendDataAsync(bytesWritten);
+
+
+          // return ctx.SendDataAsync(null, buffer);
+          // Call a fictional external source
+          using (var stream2 = HttpContext.OpenResponseStream())
+            await stream2.WriteAsync(buffer, 0, bytesWritten);
+
         }
     }
 
@@ -68,9 +73,7 @@ namespace server
             var server = new WebServer(o => o
               .WithUrlPrefix(url)
               .WithMode(HttpListenerMode.EmbedIO))
-              .WithLocalSessionManager()
-              .WithWebApi("/api", m => m
-                    .WithController<AssetController>());
+              .WithWebApi("/api", m => m.WithController<AssetController>());
             return server;
         }
         
