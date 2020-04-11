@@ -48,14 +48,14 @@ namespace LegendOfWorlds.Engine {
 
 
       //await RenderSquare();
-      Guid rndr1 = await CreateRenderTarget(Guid.NewGuid(), 10, 10, 2048, 512);
-      Guid rndr2 = await CreateRenderTarget(Guid.NewGuid(), 100, 100, 100, 100);
+      // Guid rndr1 = await CreateRenderTarget(Guid.NewGuid(), 0, 0, 2048, 512);
+      Guid rndr2 = await CreateRenderTarget(Guid.NewGuid(), 0, 0, 2048, 512);
 
 
-      Guid tex1 = await CreateTexture(Guid.NewGuid(), "./assets/images/pics1_dyl.png");
-      Guid tex2 = await CreateTexture(Guid.NewGuid(), "./assets/images/bomb1.png");
+      // Guid tex1 = await CreateTexture(Guid.NewGuid(), "./assets/images/pics1_dyl.png");
+      Guid tex2 = await CreateTexture(Guid.NewGuid(), "./assets/images/pics1_dyl.png");
 
-      await TexToTarget(tex1, rndr1);
+      // await TexToTarget(tex1, rndr1);
       await TexToTarget(tex2, rndr2);
 
       //await RenderSquare();
@@ -153,8 +153,10 @@ namespace LegendOfWorlds.Engine {
     }
 
     public static async Task<Texture> ComputeTexScaling(Texture texture, RenderTarget rndr){
-      texture.scaleX = 1;//rndr.naturalWidth / texture.width;
-      texture.scaleY = 1;//rndr.naturalHeight / texture.height;
+      texture.scaleX = rndr.width / texture.width;
+      texture.scaleY = rndr.height / texture.height;
+      texture.finalMatrix = await M4.Computations.Scale(texture.finalMatrix, texture.scaleX, texture.scaleY, 0);
+
       return texture;
     }
 

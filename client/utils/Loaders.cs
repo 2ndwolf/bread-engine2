@@ -31,6 +31,7 @@ namespace LegendOfWorlds.Loaders {
             public uint[] data;
         }
 
+
             public static async Task<ImageWithData> LoadImage(string url){
 
                 if(!baSet){
@@ -48,17 +49,44 @@ namespace LegendOfWorlds.Loaders {
                 img.width = png.Width;
                 img.height = png.Height;
 
-                Console.WriteLine(png.Height);
+                int j = 0;
 
                 uint[] abView = new uint[png.Width * png.Height];
 
                 for(var i = 0; i < abView.Length; i ++){ //Row
-                    BigGustave.Pixel pix = png.GetPixel(i, 9);
+                    // if(i > 1){
+                    //     j = i % 2 == 0 ? j + (png.Width / 2): j - (png.Width / 2) + 1;
+                    //     j = Math.Abs(j % abView.Length);
+                    // }
+                    // if(j % png.Width == 0){
+                    //     j++;
+                    // }
+
+                    BigGustave.Pixel pix = png.GetPixel(i % png.Width, (int)Math.Floor((double)(i / png.Width)));
                     abView[i] = (uint) pix.R << 24; // R
                     abView[i] = abView[i] | (uint) pix.G << 16; //G
                     abView[i] = abView[i] | (uint) pix.B << 8; //B
                     abView[i] = abView[i] | (uint) pix.A; //A
+
                 }
+
+                // for(var i = 1; i < abView.Length; i += 2){ //Row
+                //     // if(i > 1){
+                //     //     j = i % 2 == 0 ? j + (png.Width / 2): j - (png.Width / 2) + 1;
+                //     //     j = Math.Abs(j % abView.Length);
+                //     // }
+                //     // if(j % png.Width == 0){
+                //     //     j++;
+                //     // }
+
+                //     BigGustave.Pixel pix = png.GetPixel(j, 0);
+                //     abView[i] = (uint) pix.R << 24; // R
+                //     abView[i] = abView[i] | (uint) pix.G << 16; //G
+                //     abView[i] = abView[i] | (uint) pix.B << 8; //B
+                //     abView[i] = abView[i] | (uint) pix.A; //A
+
+                //     j++;
+                // }
 
                 img.data = abView;
                 
