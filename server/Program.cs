@@ -7,6 +7,8 @@ using EmbedIO.WebApi;
 using EmbedIO.Routing;
 using FlatSharp;
 using Shared.FlatBuffers;
+using Zstandard.Net;
+using System.IO.Compression;
 
 namespace server
 {
@@ -17,7 +19,7 @@ namespace server
         {
           var stream = new MemoryStream();
           Image img = Image.FromFile("./assets/" + filename);
-          img.Save(stream, System.Drawing.Imaging.ImageFormat.MemoryBmp);
+          img.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
           var bitmapData = stream.ToArray();
 
           LoWImage lowImage = new LoWImage(){ width=img.Width, height=img.Height, data=bitmapData };
@@ -26,9 +28,23 @@ namespace server
           byte[] buffer = new byte[maxBytesNeeded];
           int bytesWritten = FlatBufferSerializer.Default.Serialize(lowImage, buffer);
 
-          using (var stream2 = HttpContext.OpenResponseStream())
-            await stream2.WriteAsync(buffer, 0, bytesWritten);
+           
+          // ZStandard compress.
+          byte[] compressed = new byte[]{};
+          byte[] output = new byte[]{};
+          
+          using (var memoryStream = new MemoryStream())
+          using (var compressionStream = new ZstandardStream(memoryStream, CompressionMode.Compress))
+          {
+            compressionStream.CompressionLevel = 11;               // optional!!
+            compressionStream.Write(buffer, 0, buffer.Length);
+            compressionStream.Close();
+            compressed = memoryStream.ToArray();
+          }
 
+          using (var stream2 = HttpContext.OpenResponseStream())
+            await stream2.WriteAsync(compressed, 0, compressed.Length);
+           
         }
     }
 
