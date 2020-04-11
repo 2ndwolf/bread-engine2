@@ -5,7 +5,6 @@ using Blazor.Extensions.Canvas.WebGL;
 using System.Runtime.InteropServices;
 using eeNet;
 using LegendOfWorlds.Engine.Ecs;
-using LegendOfWorlds.Loaders;
 using Microsoft.JSInterop;
 
 
@@ -14,9 +13,11 @@ using Microsoft.JSInterop;
 namespace LegendOfWorlds.Engine {
   public struct System {
     public string name;
-    public Action action;
+    public Func<Task> action;
 
-    public static System create(Action _action) {
+    public static System create(Func<Task> _action) {
+      // Abstracts so that when you pass the action (which is just a function)
+      // you also get the name of it.
       return new System() { name=nameof(_action), action=_action };
     }
   }
@@ -32,9 +33,6 @@ namespace LegendOfWorlds.Engine {
     public static EventEmitter EE = new EventEmitter();
 
     // Rendering
-    public static WebGLContext GL;
-    public static Dictionary<int, WebGLContext> canvases;
-
     public static IJSRuntime jsRuntime;
 
     public World(IJSRuntime _jsRuntime) {
@@ -63,21 +61,30 @@ namespace LegendOfWorlds.Engine {
 
     public static async Task Render() {
       for(;;) {
-        renderSystems.ForEach((System system) => {
-          goRender();
-        });
-        await Task.Delay(32);
+        // renderSystems.ForEach((System system) => {
+        //   goRender();
+        // });
+        // await Task.Delay(32);
+        await LegendOfWorlds.Utils.Render.clearRootCanvas();
+         
+        foreach(System system in renderSystems) {
+          await system.action();
+        }
+        
+        await Task.Delay(8);
       }
     }
 
     public static async Task Update() {
-
+      /*
       for(;;) {
+        
         systems.ForEach((System system) => {
-          system.action();
+          await system.action();
         });
         await Task.Delay(16);
       }
+      */
     }
 
     public static async Task UpdateVM() {
