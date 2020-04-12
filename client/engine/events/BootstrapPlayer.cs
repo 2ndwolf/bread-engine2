@@ -1,21 +1,29 @@
-using static LegendOfWorlds.Engine.World; 
-using System.Threading.Tasks;
-using LegendOfWorlds.Engine.Ecs;
 using System;
+using System.Threading.Tasks;
+
 using Audrey;
+
+using static LegendOfWorlds.Engine.World; 
+using static LegendOfWorlds.Utils.Render;
+using LegendOfWorlds.Engine.Ecs;
 
 namespace LegendOfWorlds.Engine {
   public static partial class Events {
     // Events.
     public static Action<object> BootstrapPlayer = (object _msg) => {
       Task.Run(async () => {
-        string textureId = Guid.NewGuid().ToString();
-        string targetId = Guid.NewGuid().ToString();
+        // string textureId = Guid.NewGuid().ToString();
+        // string targetId = Guid.NewGuid().ToString();
+
+        Guid textureId = Guid.NewGuid();
+        Guid targetId = Guid.NewGuid();
+
+        await CreateRenderTarget(targetId, 0, 0);
 
         // JS stuff
-        await Utils.Render.createTexture(textureId, "https://localhost:5001/assets/doll.png");
-        await Utils.Render.createTarget(targetId, 0, 0, 1920, 1080);
-        await Utils.Render.drawOnTarget(targetId, textureId, 0, 0);
+        // await Utils.Render.createTexture(textureId, "https://localhost:5001/assets/doll.png");
+        // await Utils.Render.createTarget(targetId, 0, 0, 1920, 1080);
+        // await Utils.Render.drawOnTarget(targetId, textureId, 0, 0);
 
         // ECS stuff
         Entity entity = engine.CreateEntity();

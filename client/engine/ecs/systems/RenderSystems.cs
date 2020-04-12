@@ -1,4 +1,5 @@
-using static LegendOfWorlds.Engine.World; 
+using static LegendOfWorlds.Engine.World;
+using static LegendOfWorlds.Utils.Render;
 using System.Threading.Tasks;
 using System;
 using Audrey;
@@ -6,7 +7,9 @@ using Audrey;
 namespace LegendOfWorlds.Engine.Ecs {
   public partial class Systems {
     public static async Task GlobalRenderSystem() {
-      await Utils.Render.clearRootCanvas();
+
+      // await Utils.Render.clearRootCanvas();
+
       Family family = Family.All(typeof(RenderTargetsComponent), typeof(PositionComponent)).Get();
       ImmutableList<Entity> famEntities = engine.GetEntitiesFor(family);
 
@@ -15,7 +18,9 @@ namespace LegendOfWorlds.Engine.Ecs {
         PositionComponent positionComponent = entity.GetComponent<PositionComponent>();
 
         renderTargetsComponent.targets.ForEach(async (RenderTarget target) => {
-          await Utils.Render.drawSingleTarget(target.targetId, positionComponent.x, positionComponent.y);
+          unchecked {
+          await DrawSingleTarget(target.targetId, (int)positionComponent.x, (int)positionComponent.y);
+          }
         });
       }
     }

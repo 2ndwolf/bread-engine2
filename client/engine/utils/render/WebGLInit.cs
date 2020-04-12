@@ -1,12 +1,20 @@
-using Blazor.Extensions.Canvas.WebGL;
-using LegendOfWorlds.Data;
-using System.Threading.Tasks;
 using System;
+using System.Threading.Tasks;
+using Blazor.Extensions.Canvas.WebGL;
+
+using LegendOfWorlds.Data;
+using static LegendOfWorlds.Engine.World;
 
 
-namespace LegendOfWorlds.Engine {
+namespace LegendOfWorlds.Utils {
 
-  public partial class World{
+  public partial class Render{
+
+    public static WebGLProgram program;
+    public static int positionLocation, texcoordLocation;
+    public static WebGLUniformLocation matrixLocation, textureLocation, textureMatrixLocation;
+    public static WebGLBuffer texPositionBuffer, texcoordBuffer;
+
     public static float[] ortho;
 
     public static async Task InitWebGL(){

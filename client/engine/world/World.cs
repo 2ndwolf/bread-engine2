@@ -1,12 +1,17 @@
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Blazor.Extensions.Canvas.WebGL;
 using System.Runtime.InteropServices;
-using eeNet;
-using LegendOfWorlds.Engine.Ecs;
-using Microsoft.JSInterop;
 
+using System.Net.Http;
+
+
+using Microsoft.JSInterop;
+using Blazor.Extensions.Canvas.WebGL;
+using eeNet;
+
+using LegendOfWorlds.Engine.Ecs;
+using static LegendOfWorlds.Utils.Render;
 
 //using Microsoft.JSInterop;
 
@@ -33,18 +38,18 @@ namespace LegendOfWorlds.Engine {
     public static EventEmitter EE = new EventEmitter();
 
     // Rendering
+    public static WebGLContext GL;
     public static IJSRuntime jsRuntime;
+    public static HttpClient http;
 
-    public World(IJSRuntime _jsRuntime) {
+    public World(IJSRuntime _jsRuntime, HttpClient _http) {
+      http = _http;
       jsRuntime = _jsRuntime;
     }
 
     public static async Task Init(WebGLContext baseContext) {
-      //Image.Image img = Loaders.Loaders.OpenImageFile("https://localhost:5001/assets/images/body.png").Result;
       // Initialize Canvas
       GL = baseContext;
-      //canvases = new Dictionary<int, WebGLContext>();
-      //canvases.Add(-1, GL);
 
       // Initialize systems.
       Systems.Init();
@@ -52,20 +57,26 @@ namespace LegendOfWorlds.Engine {
       // Intiailize events.
       Events.Init();
 
+      Console.WriteLine("Initializing WebGL");
+      await InitWebGL();
+      Console.WriteLine("WebGL initialized");
+      
       // Initialize game loop and render loop.
       //Task.Run(Update);
       //Task.Run(UpdateVM);
-      await RenderTest();
-      Task.Run(Render);
+      // await RenderTest();
+      Task.Run(Rendering);
     }
 
-    public static async Task Render() {
+    public static async Task Rendering() {
       for(;;) {
         // renderSystems.ForEach((System system) => {
         //   goRender();
         // });
         // await Task.Delay(32);
-        await LegendOfWorlds.Utils.Render.clearRootCanvas();
+        await GL.ClearAsync(BufferBits.COLOR_BUFFER_BIT);
+
+        // await LegendOfWorlds.Utils.Render.clearRootCanvas();
          
         foreach(System system in renderSystems) {
           await system.action();

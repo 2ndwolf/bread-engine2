@@ -1,3 +1,6 @@
+/**
+
+
 using System;
 using Blazor.Extensions.Canvas.WebGL;
 using System.Threading.Tasks;
@@ -7,25 +10,22 @@ using LegendOfWorlds.Data;
 using M4; 
 
 
-namespace LegendOfWorlds.Engine {
+namespace LegendOfWorlds.Engine.iamacat {
 
   public partial class World {
     public struct Texture {
         public int x, y, width, height;
         public float scaleX, scaleY, radians;
-        public bool loaded;
         public WebGLTexture texture;
-        public string name;
-
         public float[] finalMatrix;
 
     }
-    public struct RenderTarget {
-        public float width, height, x, y;
-        public Texture texture;
-        // public float[] finalMatrix;
+    // public struct RenderTarget {
+    //     public float width, height, x, y;
+    //     public Texture texture;
+    //     // public float[] finalMatrix;
 
-    }
+    // }
 
     public static float[] emptyMatrix = new float[16];
 
@@ -35,10 +35,8 @@ namespace LegendOfWorlds.Engine {
     public static WebGLBuffer texPositionBuffer, texcoordBuffer;
     public static WebGLTexture glTex;
 
-    public static Dictionary<Guid, Texture> textures = new Dictionary<Guid, Texture>();
-    public static Dictionary<Guid, RenderTarget> renderTargets = new Dictionary<Guid, RenderTarget>();
-
-    // public static Matrix identity = new Matrix();
+    // public static Dictionary<Guid, Texture> textures = new Dictionary<Guid, Texture>();
+    // public static Dictionary<Guid, RenderTarget> renderTargets = new Dictionary<Guid, RenderTarget>();
 
 
     public static async Task RenderTest() {
@@ -47,13 +45,13 @@ namespace LegendOfWorlds.Engine {
       Console.WriteLine("WebGL initialized");
 
 
-      //await RenderSquare();
+      // Make render targets have 0, 0, 0, 0 as default values and resize them with the texture
       // Guid rndr1 = await CreateRenderTarget(Guid.NewGuid(), 0, 0, 2048, 512);
-      Guid rndr2 = await CreateRenderTarget(Guid.NewGuid(), 0, 0, 2048, 512);
+      Guid rndr2 = await CreateRenderTarget(Guid.NewGuid(), 0, 0, 192, 64);
 
 
       // Guid tex1 = await CreateTexture(Guid.NewGuid(), "./assets/images/pics1_dyl.png");
-      Guid tex2 = await CreateTexture(Guid.NewGuid(), "./assets/images/pics1_dyl.png");
+      Guid tex2 = await CreateTexture(Guid.NewGuid(), "./assets/doll.png");
 
       // await TexToTarget(tex1, rndr1);
       await TexToTarget(tex2, rndr2);
@@ -97,60 +95,10 @@ namespace LegendOfWorlds.Engine {
 
     }
 
-    public static async Task<Guid> CreateTexture(Guid textureId, string url){
 
 
-      Load.ImageWithData png = await Load.LoadImage(url);
-
-      Texture texture = new Texture();
-      texture.x = 0;
-      texture.y =  0;
-      texture.width = png.width;
-      texture.height = png.height;
-      texture.finalMatrix = await M4.Computations.Translation(0,0,0);
-
-      //Create texture holder
-      texture.texture = await GL.CreateTextureAsync();
-      
-      //Load image info in memory
-      await GL.BindTextureAsync(TextureType.TEXTURE_2D, texture.texture);
-      await GL.TexImage2DAsync(Texture2DType.TEXTURE_2D, 0, PixelFormat.RGBA, png.width, png.height, 0, PixelFormat.RGBA, PixelType.UNSIGNED_BYTE, png.data);
-      //Do not assume textures are a power of 2
-      await GL.TexParameterAsync(TextureType.TEXTURE_2D, TextureParameter.TEXTURE_WRAP_S, (float) TextureParameterValue.CLAMP_TO_EDGE);
-      await GL.TexParameterAsync(TextureType.TEXTURE_2D, TextureParameter.TEXTURE_WRAP_T, (float) TextureParameterValue.CLAMP_TO_EDGE);
-      await GL.TexParameterAsync(TextureType.TEXTURE_2D, TextureParameter.TEXTURE_MIN_FILTER, (float) TextureParameterValue.LINEAR);
-
-      textures[textureId] = texture;
-
-      return textureId;
-    }
 
 
-    public static async Task<Guid> CreateRenderTarget(Guid targetId, int x, int y, int width, int height){
-      
-      RenderTarget renderTarget = new RenderTarget();
-
-
-      renderTarget.width = (float)width;
-      renderTarget.height = (float)height;
-      renderTarget.x = (float)x;
-      renderTarget.y = (float)y;
-      // renderTarget.finalMatrix = new float[16];
-
-      renderTargets[targetId] = renderTarget;
-
-      return targetId;
-    }
-
-    public static async Task TexToTarget(Guid tex, Guid rndr){
-      Console.WriteLine("Getting renderTarget");
-      RenderTarget render = renderTargets[rndr];
-      Console.WriteLine("Binding texture to renderTarget");
-      textures[tex] = await ComputeTexScaling(textures[tex], render);
-      render.texture = textures[tex];
-      Console.WriteLine("Putting updated renderTarget back in renderTargets");
-      renderTargets[rndr] = render;
-    }
 
     public static async Task<Texture> ComputeTexScaling(Texture texture, RenderTarget rndr){
       texture.scaleX = rndr.width / texture.width;
@@ -190,5 +138,7 @@ namespace LegendOfWorlds.Engine {
       
     }
 
+
   }
 }
+*/

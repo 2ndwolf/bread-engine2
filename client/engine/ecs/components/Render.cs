@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
+
 using Audrey;
 
 namespace LegendOfWorlds.Engine.Ecs {
+
   public struct RenderTarget {
-    public string targetId;
-    public string textureId;
+    public Guid targetId;
+    public Guid textureId;
   }
 
   public class RenderTargetsComponent : IComponent {
