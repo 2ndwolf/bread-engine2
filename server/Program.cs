@@ -5,6 +5,7 @@ using System.Drawing;
 using EmbedIO;
 using EmbedIO.WebApi;
 using EmbedIO.Routing;
+using EmbedIO.Cors;
 using FlatSharp;
 using Shared.FlatBuffers;
 using Zstandard.Net;
@@ -84,6 +85,7 @@ namespace server
             var server = new WebServer(o => o
               .WithUrlPrefix(url)
               .WithMode(HttpListenerMode.EmbedIO))
+              .WithModule(new CorsModule("/", "*", "*", "*"))
               .WithWebApi("/api", m => m.WithController<AssetController>());
             return server;
         }
