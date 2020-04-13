@@ -1,11 +1,8 @@
 @page "/"
 @using System.Threading.Tasks
 @using Microsoft.JSInterop
-@using System.Net.Http
-@using System.Net.Http.Headers
 
 @inject IJSRuntime JSRuntime
-@inject HttpClient http
 
 
 <BECanvas Width="1280" Height="720" @ref="_canvasReference" ></BECanvas>
@@ -18,7 +15,7 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         this._context = await this._canvasReference.CreateWebGLAsync();
-        new LegendOfWorlds.Engine.World(JSRuntime, http);
-        LegendOfWorlds.Engine.World.Init(_context);
+        new LegendOfWorlds.Engine.World(JSRuntime);
+        await LegendOfWorlds.Engine.World.Init(_context);
     }
 }

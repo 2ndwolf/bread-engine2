@@ -83,15 +83,15 @@ namespace LegendOfWorlds.Utils {
     // public static ValueTask<string> deleteTarget(string targetId) {
     //   return LegendOfWorlds.Engine.World.jsRuntime.InvokeAsync<string>("deleteTarget", new string[] { targetId });
     // }
-    public static async Task DeleteTarget(Guid targetId){
+    public static void DeleteTarget(Guid targetId){
       renderTargets.Remove(targetId);
     }
 
-    public static async Task DeleteTexture(Guid texId){
+    public static void DeleteTexture(Guid texId){
       textures.Remove(texId);
     }
 
-    public static async Task TexToTarget(Guid texId, Guid rndrId){
+    public static void TexToTarget(Guid texId, Guid rndrId){
       // Console.WriteLine("Getting rndrId");
       RenderTarget render = renderTargets[rndrId];
 

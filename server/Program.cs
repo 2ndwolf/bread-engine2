@@ -31,7 +31,7 @@ namespace server
            
           // ZStandard compress.
           byte[] compressed = new byte[]{};
-          byte[] output = new byte[]{};
+        //   byte[] output = new byte[]{};
           
           using (var memoryStream = new MemoryStream())
           using (var compressionStream = new ZstandardStream(memoryStream, CompressionMode.Compress))

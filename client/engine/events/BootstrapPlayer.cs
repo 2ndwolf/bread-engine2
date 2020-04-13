@@ -18,7 +18,10 @@ namespace LegendOfWorlds.Engine {
         Guid textureId = Guid.NewGuid();
         Guid targetId = Guid.NewGuid();
 
-        await CreateRenderTarget(targetId, 0, 0);
+        await CreateRenderTarget(targetId);
+        await CreateTexture(textureId, "body.png");
+
+        TexToTarget(textureId, targetId);
 
         // JS stuff
         // await Utils.Render.createTexture(textureId, "https://localhost:5001/assets/doll.png");

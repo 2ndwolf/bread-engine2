@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 
 using System.Net.Http;
 
-
 using Microsoft.JSInterop;
 using Blazor.Extensions.Canvas.WebGL;
 using eeNet;
@@ -40,10 +39,8 @@ namespace LegendOfWorlds.Engine {
     // Rendering
     public static WebGLContext GL;
     public static IJSRuntime jsRuntime;
-    public static HttpClient http;
 
-    public World(IJSRuntime _jsRuntime, HttpClient _http) {
-      http = _http;
+    public World(IJSRuntime _jsRuntime) {
       jsRuntime = _jsRuntime;
     }
 
@@ -65,7 +62,7 @@ namespace LegendOfWorlds.Engine {
       //Task.Run(Update);
       //Task.Run(UpdateVM);
       // await RenderTest();
-      Task.Run(Rendering);
+      await Task.Run(Rendering);
     }
 
     public static async Task Rendering() {
@@ -86,8 +83,8 @@ namespace LegendOfWorlds.Engine {
       }
     }
 
-    public static async Task Update() {
       /*
+    public static async Task Update() {
       for(;;) {
         
         systems.ForEach((System system) => {
@@ -95,19 +92,19 @@ namespace LegendOfWorlds.Engine {
         });
         await Task.Delay(16);
       }
-      */
     }
+      */
 
-    public static async Task UpdateVM() {
       /*
+    public static async Task UpdateVM() {
       for(;;) {
         systems.ForEach((System system) => {
           system.action();
         });
         await Task.Delay(16);
       }
-      */
     }
+      */
 
   }
 }

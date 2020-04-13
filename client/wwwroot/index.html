@@ -8,10 +8,26 @@
     <base href="/" />
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="_content/Blazor.Extensions.Canvas/blazor.extensions.canvas.js"></script>
+    <style>
+        body {
+          margin: 0px;
+          background: black;
+        }
+        #BECanvas {
+          padding-left: 0;
+          padding-right: 0;
+          margin-left: auto;
+          margin-right: auto;
+          display: block;
+          border: none;
+          outline: none;
+          width: 1280px;
+          height: 720px;
+        }
+      </style>
 </head>
 
 <body>
-    <canvas id="root-canvas" width="1920" height="1080" x="0" y="0"></canvas>
     <app>Loading...</app>
 
     <div id="blazor-error-ui">
