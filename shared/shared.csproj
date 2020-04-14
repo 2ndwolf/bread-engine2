@@ -8,4 +8,10 @@
     <PackageReference Include="FlatSharp" Version="3.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\libs\Audrey\Audrey\Audrey.csproj" />
+    <ProjectReference Include="..\libs\JanusLiteNetLib\Janus\Janus.csproj" />
+    <ProjectReference Include="..\libs\eeNet\EventEmitter\EventEmitter.csproj" />
+  </ItemGroup>
+
 </Project>
