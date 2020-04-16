@@ -10,8 +10,8 @@
     <RootNamespace>Janus</RootNamespace>
     <AssemblyName>Janus</AssemblyName>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
