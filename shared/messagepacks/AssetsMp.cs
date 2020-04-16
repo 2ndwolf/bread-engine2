@@ -1,6 +1,6 @@
 using MessagePack; 
 
-namespace Shared.FlatBuffers {
+namespace Shared.MessagePacks {
     [MessagePackObject]
     public class LoWImage
     {   

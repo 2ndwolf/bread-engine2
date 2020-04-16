@@ -7,7 +7,7 @@ using EmbedIO.WebApi;
 using EmbedIO.Routing;
 using EmbedIO.Cors;
 using MessagePack; 
-using Shared.FlatBuffers;
+using Shared.MessagePacks;
 
 namespace server
 {
