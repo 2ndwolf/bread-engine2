@@ -6,7 +6,7 @@ using EmbedIO;
 using EmbedIO.WebApi;
 using EmbedIO.Routing;
 using EmbedIO.Cors;
-using FlatSharp;
+using MessagePack; 
 using Shared.FlatBuffers;
 using Zstandard.Net;
 using System.IO.Compression;
@@ -23,25 +23,11 @@ namespace server
           img.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
           var bitmapData = stream.ToArray();
 
-          LoWImage lowImage = new LoWImage(){ width=img.Width, height=img.Height, data=bitmapData };
+          LoWImage lowImage = new LoWImage(){ width=img.Width, height=img.Height , data=bitmapData};
 
-          int maxBytesNeeded = FlatBufferSerializer.Default.GetMaxSize(lowImage);
-          byte[] buffer = new byte[maxBytesNeeded];
-          int bytesWritten = FlatBufferSerializer.Default.Serialize(lowImage, buffer);
+          var bin = MessagePackSerializer.Serialize(lowImage);
 
-           
-          // ZStandard compress.
-          byte[] compressed = new byte[]{};
-        //   byte[] output = new byte[]{};
-          
-          using (var memoryStream = new MemoryStream())
-          using (var compressionStream = new ZstandardStream(memoryStream, CompressionMode.Compress))
-          {
-            compressionStream.CompressionLevel = 11;               // optional!!
-            compressionStream.Write(buffer, 0, buffer.Length);
-            compressionStream.Close();
-            compressed = memoryStream.ToArray();
-          }
+          byte[] compressed = LegendOfWorlds.Shared.Utils.LZMA.Compress(bin);
 
           using (var stream2 = HttpContext.OpenResponseStream())
             await stream2.WriteAsync(compressed, 0, compressed.Length);

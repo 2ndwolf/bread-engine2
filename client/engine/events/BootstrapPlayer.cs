@@ -1,4 +1,5 @@
 using System;
+using System.IO; // I think we can safely remove this one
 using System.Threading.Tasks;
 
 using Audrey;
@@ -12,13 +13,11 @@ namespace LegendOfWorlds.Engine {
     // Events.
     public static Action<object> BootstrapPlayer = (object _msg) => {
       Task.Run(async () => {
-        // string textureId = Guid.NewGuid().ToString();
-        // string targetId = Guid.NewGuid().ToString();
-
         Guid textureId = Guid.NewGuid();
         Guid targetId = Guid.NewGuid();
 
         await CreateRenderTarget(targetId);
+
         await CreateTexture(textureId, "body.png");
 
         TexToTarget(textureId, targetId);

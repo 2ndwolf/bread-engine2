@@ -22,7 +22,7 @@ namespace LegendOfWorlds.Utils {
       await GL.ViewportAsync(0, 0, 1280, 720);
       ortho = await M4.Computations.Orthographic(0f, 1280f, 720f, 0f, 1f, 0f);
 
-      await GL.ClearColorAsync(1.0f, 0.0f, 0.0f, 1.0f);
+      await GL.ClearColorAsync(0f, 0f, 0.0f, 1.0f);
 
       WebGLShader vertexShader = await CreateShader(ShaderType.VERTEX_SHADER, Shaders.mainVertexShader);
       WebGLShader fragmentShader = await CreateShader(ShaderType.FRAGMENT_SHADER, Shaders.mainFragmentShader);

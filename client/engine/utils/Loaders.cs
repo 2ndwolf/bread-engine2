@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 using Zstandard.Net;
 
 using Shared.FlatBuffers;
-using FlatSharp;
-
+using MessagePack; 
 
 using System.IO.Compression;
+
 
 // using static LegendOfWorlds.Engine.World;
 
@@ -37,10 +37,6 @@ namespace LegendOfWorlds.Loaders {
         // {
         // }
 
-        public struct ImageWithData {
-            public int width, height;
-            public uint[] data;
-        }
 
         public static async Task<ImageWithData> LoadImage(string url){
 
@@ -49,45 +45,54 @@ namespace LegendOfWorlds.Loaders {
                 HC.BaseAddress = new Uri("http://localhost:9696/api/assets/");
             }
 
-            var gotImage = await HC.GetAsync(url);
+            var gotImage = await HC.GetAsync(url).ConfigureAwait(false);
 
-            byte[] compressedImg = await gotImage.Content.ReadAsByteArrayAsync();
+            byte[] compressedImg = await gotImage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
 
+            byte[] decompressedImg = LegendOfWorlds.Shared.Utils.LZMA.Decompress(compressedImg);
 
-            // ZStandard compress.
-            byte[] decompressedImg = new byte[]{};
-            
-            using (var memoryStream = new MemoryStream())
-            using (var decompressionStream = new ZstandardStream(memoryStream, CompressionMode.Decompress))
-            {
-                decompressionStream.CompressionLevel = 11;               // optional!!
-                decompressionStream.Write(compressedImg, 0, compressedImg.Length);
-                decompressionStream.Close();
-                decompressedImg = memoryStream.ToArray();
-            }
+            var imgData = MessagePackSerializer.Deserialize<LoWImage>(decompressedImg);
 
-            //deserialize flatbuffer
-            LoWImage imgData = FlatBufferSerializer.Default.Parse<LoWImage>(decompressedImg);
-
-
-            // byte[] byteArray = await imageFile.Content.ReadAsByteArrayAsync();
+            int startOffset = imgData.data[10];
+            int colorDepth = imgData.data[28];
 
             ImageWithData img = new ImageWithData();
 
             img.width = imgData.width;
             img.height = imgData.height;
 
+            // Console.WriteLine("[{0}]", string.Join(", ", imgData.data));
             uint[] abView = new uint[img.width * img.height];
+            int j = ((imgData.data.Length - startOffset) / 4) - 1;
+            // Console.WriteLine(j * 4 + ", " + imgData.data.Length);
+            // Console.WriteLine(j);
 
-            for(var i = 0; i < abView.Length; i ++){
+            if(colorDepth == 24){
+                Console.WriteLine("Non transparent images will display mirrored until I fix it");
+                for(var i = 0; i < abView.Length; i ++){
 
-                abView[i] = (uint) imgData.data[i * 4] << 24; // R
-                abView[i] = abView[i] | (uint) imgData.data[i * 4 + 1] << 16; //G
-                abView[i] = abView[i] | (uint) imgData.data[i * 4 + 2] << 8; //B
-                abView[i] = abView[i] | (uint) imgData.data[i * 4 + 3]; //A
+                    abView[i] = abView[i] | (uint) 255; //A OK
+                    abView[i] = abView[i] | (uint) imgData.data[j * 3] << 8; //B OK?
+                    abView[i] = abView[i] | (uint) imgData.data[j * 3 + 1] << 16; //G OK
+                    abView[i] = abView[i] | (uint) imgData.data[j * 3 + 2] << 24; // R OK
+                    j--;
+                }
 
+            } else if (colorDepth == 32){
+                j = 0;
+                for(var i = img.height - 1; i >= 0; i --){
+                    for(var k = 0; k < img.width; k ++){
+                        uint currPos = (uint)(startOffset + ((i * img.width + k) << 2));
+                        abView[j] = abView[j] | (uint) imgData.data[currPos] << 8; // b OK
+                        abView[j] = abView[j] | (uint) imgData.data[currPos + 1] << 16; // g OK
+                        abView[j] = abView[j] | (uint) imgData.data[currPos + 2] << 24; //r OK
+                        abView[j] = abView[j] | (uint) imgData.data[currPos + 3]; //A OK
+                        j++;
+                    }
+                }
+            } else {
+                Console.WriteLine("The supported bit depths for images are 32 (RGBA) and 24 (RGB), the server conversion to bitmap should have taken care of this.");
             }
-
             img.data = abView;
             
             return img;

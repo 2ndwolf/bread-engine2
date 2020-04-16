@@ -35,7 +35,7 @@ namespace LegendOfWorlds.Utils {
     // }
     public static async Task<Guid> CreateTexture(Guid textureId, string url){
 
-      Load.ImageWithData img = await Load.LoadImage(url);
+      ImageWithData img = await Load.LoadImage(url);
 
       textures[textureId] = new Texture();
       Texture tex = textures[textureId];
