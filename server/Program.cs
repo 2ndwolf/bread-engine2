@@ -8,8 +8,6 @@ using EmbedIO.Routing;
 using EmbedIO.Cors;
 using MessagePack; 
 using Shared.FlatBuffers;
-using Zstandard.Net;
-using System.IO.Compression;
 
 namespace server
 {
