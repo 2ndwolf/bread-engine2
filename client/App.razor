@@ -15,7 +15,8 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         this._context = await this._canvasReference.CreateWebGLAsync();
-        new LegendOfWorlds.Engine.World(JSRuntime);
+        new global::Shared.Engine.World(JSRuntime);
         await LegendOfWorlds.Engine.World.Init(_context);
+        await global::Shared.Engine.World.Init();
     }
 }

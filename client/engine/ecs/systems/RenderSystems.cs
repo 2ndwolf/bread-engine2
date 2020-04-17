@@ -1,28 +1,16 @@
+using static Shared.Engine.World;
 using static LegendOfWorlds.Engine.World;
-using static LegendOfWorlds.Utils.Render;
-using System.Threading.Tasks;
-using System;
-using Audrey;
+using SharedEngine = Shared.Engine;
+// using static Shared.Ecs.Systems;
 
 namespace LegendOfWorlds.Engine.Ecs {
-  public partial class Systems {
-    public static async Task GlobalRenderSystem() {
+  public partial class RenderSystems {
+    public static void Init() {
+      // Game logic systems
+      // World.systems.Add(System.create(WaitSystem));
 
-      // await Utils.Render.clearRootCanvas();
-
-      Family family = Family.All(typeof(RenderTargetsComponent), typeof(PositionComponent)).Get();
-      ImmutableList<Entity> famEntities = engine.GetEntitiesFor(family);
-
-      foreach(Entity entity in famEntities) {
-        RenderTargetsComponent renderTargetsComponent = entity.GetComponent<RenderTargetsComponent>();
-        PositionComponent positionComponent = entity.GetComponent<PositionComponent>();
-
-        renderTargetsComponent.targets.ForEach(async (RenderTarget target) => {
-          unchecked {
-          await DrawSingleTarget(target.targetId, (int)positionComponent.x, (int)positionComponent.y);
-          }
-        });
-      }
+      // Render systems
+      LegendOfWorlds.Engine.World.renderSystems.Add(SharedEngine.System.create(GlobalRenderSystem));
     }
   }
-}
+} 

@@ -14,7 +14,9 @@ namespace LegendOfWorlds.Engine.Ecs {
     public List<RenderTarget> targets = new List<RenderTarget>();
   }
 
-  public class TexturesComponent : IComponent {
-    public List<string> textures = new List<string>();
-  }
+  // public class TexturesComponent : IComponent {
+  //   public List<string> textures = new List<string>();
+  // }
+
+
 }

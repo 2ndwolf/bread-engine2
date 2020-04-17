@@ -4,9 +4,10 @@ using System.Threading.Tasks;
 
 using Audrey;
 
-using static LegendOfWorlds.Engine.World; 
+using static Shared.Engine.World; 
 using static LegendOfWorlds.Utils.Render;
 using LegendOfWorlds.Engine.Ecs;
+using SharedEngine = Shared.Engine;
 
 namespace LegendOfWorlds.Engine {
   public static partial class Events {
@@ -42,9 +43,6 @@ namespace LegendOfWorlds.Engine {
 
         entity.AddComponent(targetsComponent);
         entity.AddComponent(positionComponent);
-
-          // Initialize systems.
-        Systems.Init();
       });
     };
   }

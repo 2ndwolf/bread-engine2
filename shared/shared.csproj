@@ -7,6 +7,7 @@
   <ItemGroup>
     <PackageReference Include="MessagePack" Version="2.1.115" />
     <PackageReference Include="LZMA-SDK" Version="19.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="3.0.0-preview8.19405.7" />
   </ItemGroup>
 
   <ItemGroup>
