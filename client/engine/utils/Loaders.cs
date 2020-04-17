@@ -79,16 +79,20 @@ namespace LegendOfWorlds.Loaders {
 
             } else if (colorDepth == 32){
                 j = 0;
-                for(var i = img.height - 1; i >= 0; i --){
-                    for(var k = 0; k < img.width; k ++){
-                        uint currPos = (uint)(startOffset + ((i * img.width + k) << 2));
-                        abView[j] = abView[j] | (uint) imgData.data[currPos] << 8; // b OK
-                        abView[j] = abView[j] | (uint) imgData.data[currPos + 1] << 16; // g OK
-                        abView[j] = abView[j] | (uint) imgData.data[currPos + 2] << 24; //r OK
-                        abView[j] = abView[j] | (uint) imgData.data[currPos + 3]; //A OK
-                        j++;
+
+                unchecked {
+                    for(var i = img.height - 1; i >= 0; i --){
+                        for(var k = 0; k < img.width; k ++){
+                            uint currPos = (uint)(startOffset + ((i * img.width + k) << 2));
+                            abView[j] = abView[j] | (uint) imgData.data[currPos] << 8; // b OK
+                            abView[j] = abView[j] | (uint) imgData.data[currPos + 1] << 16; // g OK
+                            abView[j] = abView[j] | (uint) imgData.data[currPos + 2] << 24; //r OK
+                            abView[j] = abView[j] | (uint) imgData.data[currPos + 3]; //A OK
+                            j++;
+                        }
                     }
                 }
+                
             } else {
                 Console.WriteLine("The supported bit depths for images are 32 (RGBA) and 24 (RGB), the server conversion to bitmap should have taken care of this.");
             }

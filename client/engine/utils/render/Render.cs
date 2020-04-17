@@ -16,9 +16,10 @@ namespace LegendOfWorlds.Utils {
     private struct RenderTarget {
         public int width, height;
         public Guid textureId;
-        public float[] texFinalMatrix;
+        public float[][][] texFinalMatrices;
+        //texFinalMatrices[currentState][currentFrame]([Matrix])
 
-        // All that is texture info stored in texFinalMatrix
+        // All that is texture info stored in texFinalMatrices
         // public int x, y, width, height;
         // public float scaleX, scaleY, radians;
     }
@@ -58,10 +59,6 @@ namespace LegendOfWorlds.Utils {
       return textureId;
     }
 
-    // public static ValueTask<string> deleteTexture(string textureId) {
-    //   return LegendOfWorlds.Engine.World.jsRuntime.InvokeAsync<string>("deleteTexture", new string[] { textureId });
-    // }
-
     // public static ValueTask<string> createTarget(string targetId, float x, float y, float width, float height) {
     //   return LegendOfWorlds.Engine.World.jsRuntime.InvokeAsync<string>("createTarget", new object[] { targetId, x, y, width, height });
     // }
@@ -72,7 +69,10 @@ namespace LegendOfWorlds.Utils {
       renderTarget.width = width;
       renderTarget.height = height;
 
-      renderTarget.texFinalMatrix = await M4.Computations.Translation(0,0,0);
+      renderTarget.texFinalMatrices = new float[1][][];
+      renderTarget.texFinalMatrices[0] = new float[1][];
+
+      renderTarget.texFinalMatrices[0][0] = await M4.Computations.Translation(0,0,0);
 
       renderTargets[targetId] = renderTarget;
 
@@ -87,9 +87,14 @@ namespace LegendOfWorlds.Utils {
       renderTargets.Remove(targetId);
     }
 
+    // public static ValueTask<string> deleteTexture(string textureId) {
+    //   return LegendOfWorlds.Engine.World.jsRuntime.InvokeAsync<string>("deleteTexture", new string[] { textureId });
+    // }
     public static void DeleteTexture(Guid texId){
       textures.Remove(texId);
     }
+
+    //TODO: COPYTARGET?
 
     public static void TexToTarget(Guid texId, Guid rndrId){
       // Console.WriteLine("Getting rndrId");
@@ -131,7 +136,7 @@ namespace LegendOfWorlds.Utils {
       await GL.UniformMatrixAsync(matrixLocation, false, matrix);
 
       //The texture's matrix
-      await GL.UniformMatrixAsync(textureMatrixLocation, false, rT.texFinalMatrix);
+      await GL.UniformMatrixAsync(textureMatrixLocation, false, rT.texFinalMatrices[0][0]);
       
       await GL.UniformAsync(textureLocation, 0);
 
