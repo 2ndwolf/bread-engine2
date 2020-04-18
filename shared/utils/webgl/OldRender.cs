@@ -5,8 +5,8 @@ using System;
 using Blazor.Extensions.Canvas.WebGL;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using LegendOfWorlds.Loaders;
-using LegendOfWorlds.Data;
+using Shared.Loaders;
+using Shared.Data;
 using M4; 
 
 

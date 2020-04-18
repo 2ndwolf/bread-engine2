@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using SevenZip;
 
-namespace LegendOfWorlds.Shared.Utils {
+namespace Shared.Utils {
 
   public class LZMA{
     public static byte[] Compress(byte[] toCompress)

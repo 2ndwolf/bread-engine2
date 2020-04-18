@@ -1,12 +1,14 @@
+#if WEBGL
+
 using System;
 using System.Threading.Tasks;
 using Blazor.Extensions.Canvas.WebGL;
 
-using LegendOfWorlds.Data;
-using static LegendOfWorlds.Engine.World;
+using Shared.Data;
+using static Shared.Engine.World;
 
 
-namespace LegendOfWorlds.Utils {
+namespace Shared.Utils {
 
   public partial class Render{
 
@@ -100,3 +102,5 @@ namespace LegendOfWorlds.Utils {
     }
   }
 }
+
+#endif

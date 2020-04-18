@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 using System.Net.Http;
 
 using Microsoft.JSInterop;
-using Blazor.Extensions.Canvas.WebGL;
+// using Blazor.Extensions.Canvas.WebGL;
 using eeNet;
 
 using LegendOfWorlds.Engine.Ecs;
-using static LegendOfWorlds.Utils.Render;
+using static Shared.Utils.Render;
 using static LegendOfWorlds.Engine.Ecs.RenderSystems;
 
 using static Shared.Engine.World;
@@ -41,19 +41,16 @@ namespace LegendOfWorlds.Engine {
     // public static EventEmitter EE = new EventEmitter();
 
     // Rendering
-    public static WebGLContext GL;
+    // public static WebGLContext GL;
     // public static IJSRuntime jsRuntime;
 
     // public World(IJSRuntime _jsRuntime) {
     //   jsRuntime = _jsRuntime;
     // }
 
-    public static async Task Init(WebGLContext baseContext) {
+    public static async Task Init(/* WebGLContext baseContext */) {
       // Initialize Canvas
-      GL = baseContext;
-      Console.WriteLine("Initializing WebGL");
-      await InitWebGL();
-      Console.WriteLine("WebGL initialized");
+      // GL = Shared.Engine.World.GL;
 
       // Initialize RenderSystems.
       RenderSystems.Init();
@@ -77,7 +74,7 @@ namespace LegendOfWorlds.Engine {
         // await Task.Delay(32);
         await GL.ClearAsync(BufferBits.COLOR_BUFFER_BIT);
 
-        // await LegendOfWorlds.Utils.Render.clearRootCanvas();
+        // await Shared.Utils.Render.clearRootCanvas();
          
         foreach(SharedEngine.System system in renderSystems) {
           await system.action();

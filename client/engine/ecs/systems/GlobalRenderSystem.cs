@@ -1,5 +1,9 @@
 using static Shared.Engine.World;
-using static LegendOfWorlds.Utils.Render;
+using static Shared.Utils.Render;
+
+using Shared.Ecs.Components.GameObject;
+using Shared.Ecs.Components.Render;
+
 using System.Threading.Tasks;
 using System;
 using Audrey;

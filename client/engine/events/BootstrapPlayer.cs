@@ -4,45 +4,22 @@ using System.Threading.Tasks;
 
 using Audrey;
 
-using static Shared.Engine.World; 
-using static LegendOfWorlds.Utils.Render;
+using static Shared.Engine.World;
+using static Shared.Ecs.Entities.Archetypes;
 using LegendOfWorlds.Engine.Ecs;
 using SharedEngine = Shared.Engine;
+
 
 namespace LegendOfWorlds.Engine {
   public static partial class Events {
     // Events.
     public static Action<object> BootstrapPlayer = (object _msg) => {
       Task.Run(async () => {
-        Guid textureId = Guid.NewGuid();
-        Guid targetId = Guid.NewGuid();
-
-        await CreateRenderTarget(targetId);
-
-        await CreateTexture(textureId, "body.png");
-
-        TexToTarget(textureId, targetId);
-
-        // JS stuff
-        // await Utils.Render.createTexture(textureId, "https://localhost:5001/assets/doll.png");
-        // await Utils.Render.createTarget(targetId, 0, 0, 1920, 1080);
-        // await Utils.Render.drawOnTarget(targetId, textureId, 0, 0);
 
         // ECS stuff
-        Entity entity = engine.CreateEntity();
-        RenderTargetsComponent targetsComponent = new RenderTargetsComponent();
-        PositionComponent positionComponent = new PositionComponent();
+        Entity entity = World.engine.CreateEntity();
+        await GaniCharacter(entity).AddChatText().AddNickname();
 
-        targetsComponent.targets.Add(new RenderTarget() { 
-          targetId=targetId, 
-          textureId=textureId
-        });
-        
-        positionComponent.x = 0;
-        positionComponent.y = 0;
-
-        entity.AddComponent(targetsComponent);
-        entity.AddComponent(positionComponent);
       });
     };
   }

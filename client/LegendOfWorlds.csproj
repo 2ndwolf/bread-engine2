@@ -23,8 +23,11 @@
     <ProjectReference Include="..\libs\Audrey\Audrey\Audrey.csproj" />
     <ProjectReference Include="..\libs\JanusLiteNetLib\Janus\Janus.csproj" />
     <ProjectReference Include="..\libs\eeNet\EventEmitter\EventEmitter.csproj" />
+    <ProjectReference Include="..\shared\shared.csproj">
+      <Properties>DefineConstants=WEBGL;CLIENT</Properties>
+    </ProjectReference>
     <ProjectReference Include="..\libs\Canvas\src\Blazor.Extensions.Canvas\Blazor.Extensions.Canvas.csproj" />
-    <ProjectReference Include="..\shared\shared.csproj" />
+
   </ItemGroup>
   
 </Project>

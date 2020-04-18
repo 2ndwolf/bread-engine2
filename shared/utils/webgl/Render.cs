@@ -1,13 +1,14 @@
+#if WEBGL
+
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Blazor.Extensions.Canvas.WebGL;
 
-using static LegendOfWorlds.Engine.World;
-using LegendOfWorlds.Loaders;
+using Shared.Loaders;
+using static Shared.Engine.World;
 
-
-namespace LegendOfWorlds.Utils {
+namespace Shared.Utils {
   public partial class Render {
 
     private static Dictionary<Guid, Texture> textures = new Dictionary<Guid, Texture>();
@@ -27,6 +28,7 @@ namespace LegendOfWorlds.Utils {
     private struct Texture {
       public int width, height;
       public WebGLTexture texture;
+      public string name;
     }
 
 
@@ -36,12 +38,20 @@ namespace LegendOfWorlds.Utils {
     // }
     public static async Task<Guid> CreateTexture(Guid textureId, string url){
 
+      // Avoids duplicate textures
+      foreach(KeyValuePair<Guid, Texture> t in textures){
+        if(t.Value.name == url){
+          return t.Key;
+        }
+      }
+
       ImageWithData img = await Load.LoadImage(url);
 
-      textures[textureId] = new Texture();
-      Texture tex = textures[textureId];
+      // textures[textureId] = ;
+      Texture tex = new Texture();
       tex.width = img.width;
       tex.height = img.height;
+      tex.name = url;
 
       //Create texture holder
       tex.texture = await GL.CreateTextureAsync();
@@ -96,7 +106,7 @@ namespace LegendOfWorlds.Utils {
 
     //TODO: COPYTARGET?
 
-    public static void TexToTarget(Guid texId, Guid rndrId){
+    public static async Task<(Guid texId, Guid rndrId)> TexToTarget(Guid texId, Guid rndrId){
       // Console.WriteLine("Getting rndrId");
       RenderTarget render = renderTargets[rndrId];
 
@@ -111,6 +121,8 @@ namespace LegendOfWorlds.Utils {
       render.textureId = texId;
       // Console.WriteLine("Putting updated renderTarget back in renderTargets");
       renderTargets[rndrId] = render;
+
+      return (texId, rndrId);
     }
 
     // public static ValueTask<string> drawOnTarget(string targetId, string textureId, float x, float y) {
@@ -153,3 +165,5 @@ namespace LegendOfWorlds.Utils {
     
   }
 }
+
+#endif

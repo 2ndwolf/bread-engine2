@@ -1,3 +1,4 @@
+
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -8,7 +9,10 @@ using System.Net.Http;
 using Microsoft.JSInterop;
 using eeNet;
 
+using Blazor.Extensions.Canvas.WebGL;
+
 using static Shared.Engine.Ecs.Systems;
+using static Shared.Utils.Render;
 using Shared.Engine.Ecs;
 
 
@@ -35,42 +39,44 @@ namespace Shared.Engine {
     // Events
     public static EventEmitter EE = new EventEmitter();
 
-    // Rendering
-    // public static WebGLContext GL;
     public static IJSRuntime jsRuntime;
 
     public World(IJSRuntime _jsRuntime) {
       jsRuntime = _jsRuntime;
     }
 
+#if (CLIENT || SERVER)
+    // Rendering
+    public static WebGLContext GL;
+
+    public static async Task Init(WebGLContext baseContext) {
+
+      GL = baseContext;
+
+      Console.WriteLine("Initializing WebGL");
+      await InitWebGL();
+      Console.WriteLine("WebGL initialized");
+
+      // Initialize systems.
+      Systems.Init();
+
+      // Intialize events.
+      // Events.Init();
+
+      await Task.Run(Update);
+    }
+#elif SERVER
     public static async Task Init() {
 
       // Initialize systems.
       Systems.Init();
 
-      // Intiailize events.
+      // Intialize events.
       // Events.Init();
 
       await Task.Run(Update);
     }
-
-    // public static async Task Rendering() {
-    //   for(;;) {
-    //     // renderSystems.ForEach((System system) => {
-    //     //   goRender();
-    //     // });
-    //     // await Task.Delay(32);
-    //     await GL.ClearAsync(BufferBits.COLOR_BUFFER_BIT);
-
-    //     // await LegendOfWorlds.Utils.Render.clearRootCanvas();
-         
-    //     foreach(System system in renderSystems) {
-    //       await system.action();
-    //     }
-        
-    //     await Task.Delay(8);
-    //   }
-    // }
+#endif
 
     public static async Task Update() {
       for(;;) {

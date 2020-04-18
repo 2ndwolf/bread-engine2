@@ -16,7 +16,7 @@
     {
         this._context = await this._canvasReference.CreateWebGLAsync();
         new global::Shared.Engine.World(JSRuntime);
-        await LegendOfWorlds.Engine.World.Init(_context);
-        await global::Shared.Engine.World.Init();
+        global::Shared.Engine.World.Init(_context);
+        LegendOfWorlds.Engine.World.Init();
     }
 }

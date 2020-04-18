@@ -1,8 +1,10 @@
 /*
 
-    Loading abstraction for text files
+    Loading abstraction for image files to be loaded
+    through internet, calling from the server.
 
 */
+#if WEBGL
 
 using System;
 using System.IO;
@@ -21,14 +23,14 @@ using System.IO.Compression;
 
 
 
-namespace LegendOfWorlds.Loaders {
+namespace Shared.Loaders {
 
     public struct ImageWithData{
         public int width, height;
         public uint[] data;
     }
 
-    public static class Load{
+    public static partial class Load{
         private static HttpClient HC = new HttpClient();
         private static bool baSet = false;
 
@@ -48,7 +50,7 @@ namespace LegendOfWorlds.Loaders {
 
             byte[] compressedImg = await gotImage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
 
-            byte[] decompressedImg = LegendOfWorlds.Shared.Utils.LZMA.Decompress(compressedImg);
+            byte[] decompressedImg = Shared.Utils.LZMA.Decompress(compressedImg);
 
             var imgData = MessagePackSerializer.Deserialize<LoWImage>(decompressedImg);
 
@@ -102,5 +104,6 @@ namespace LegendOfWorlds.Loaders {
         }
     }
 }
+#endif
 
  

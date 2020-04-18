@@ -29,7 +29,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
+#if WEBGL
 using System.Threading.Tasks;
 using System;
 
@@ -261,3 +261,4 @@ namespace M4{
 
     }
 }
+#endif

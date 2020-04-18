@@ -25,7 +25,7 @@ namespace server
 
           var bin = MessagePackSerializer.Serialize(lowImage);
 
-          byte[] compressed = LegendOfWorlds.Shared.Utils.LZMA.Compress(bin);
+          byte[] compressed = Shared.Utils.LZMA.Compress(bin);
 
           using (var stream2 = HttpContext.OpenResponseStream())
             await stream2.WriteAsync(compressed, 0, compressed.Length);

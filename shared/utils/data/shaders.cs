@@ -1,5 +1,5 @@
-
-namespace LegendOfWorlds.Data{
+#if WEBGL
+namespace Shared.Data{
 
     public static class Shaders{
       public static string mainVertexShader = 
@@ -102,3 +102,4 @@ namespace LegendOfWorlds.Data{
       ";
     }
 }
+#endif
