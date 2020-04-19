@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <RazorLangVersion>3.0</RazorLangVersion>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MessagePack" Version="2.1.115" />
+    <PackageReference Include="LZMA-SDK" Version="19.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\libs\Audrey\Audrey\Audrey.csproj" />
+    <ProjectReference Include="..\libs\JanusLiteNetLib\Janus\Janus.csproj" />
+    <ProjectReference Include="..\libs\eeNet\EventEmitter\EventEmitter.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(DefineConstants.Contains('WEBGL')) == 'true'" >
+    <PackageReference Include="Microsoft.AspNetCore.Blazor.HttpClient" Version="3.0.0-preview8.19405.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="3.0.0-preview8.19405.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="3.2.0-preview2.20160.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.0-preview2.20160.5" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="3.2.0-preview2.20160.5" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(DefineConstants.Contains('WEBGL')) == 'true'" >
+    <ProjectReference Include="..\libs\Canvas\src\Blazor.Extensions.Canvas\Blazor.Extensions.Canvas.csproj" />
+  </ItemGroup>
+
+
+</Project>

@@ -1,0 +1,10 @@
+client/bin
+client/obj
+client/ts/node_modules
+converter/bin
+converter/obj
+shared/bin
+shared/obj
+server/bin
+server/obj
+server/assets

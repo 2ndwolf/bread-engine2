@@ -1,0 +1,21 @@
+@page "/"
+@using System.Threading.Tasks
+@using Microsoft.JSInterop
+
+@* @inject IJSRuntime JSRuntime *@
+
+
+<BECanvas Width="1280" Height="720" @ref="_canvasReference" ></BECanvas>
+
+
+@code {
+    private WebGLContext _context;
+    protected BECanvasComponent _canvasReference;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        this._context = await this._canvasReference.CreateWebGLAsync();
+        global::Shared.Engine.World.Init(_context);
+        LegendOfWorlds.Engine.World.Init();
+    }
+}

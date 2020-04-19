@@ -1,0 +1,26 @@
+{
+	"folders": [
+    {
+      "path": "./client"
+    },
+    {
+      "path": "./server"
+    },
+    {
+      "path": "./server_list"
+    },
+    {
+      "path": "./editor"
+    },
+    {
+      "path": "./shared"
+    },
+    {
+      "path": "./libs"
+    },
+    {
+      "path": "converter"
+    }
+  ],
+  "settings": {}
+}

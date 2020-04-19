@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "module": "ES2020",
+    "lib": [
+      "ES2015",
+      "dom"
+    ],
+    "outDir": "../wwwroot/js"
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
