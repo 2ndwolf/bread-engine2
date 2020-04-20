@@ -27,52 +27,95 @@ namespace Shared.Ecs.Entities{
 
       #if (CLIENT || EDITOR)
 
-      if(!entityPart.HasComponent<RenderTargetsComponent>())
-        entityPart.AddComponent(new RenderTargetsComponent());
+      if(!entityPart.HasComponent<RenderablesComponent>())
+        entityPart.AddComponent(new RenderablesComponent());
 
-      RenderTargetsComponent targetsComponent = entityPart.GetComponent<RenderTargetsComponent>();
+      RenderablesComponent targetsComponent = entityPart.GetComponent<RenderablesComponent>();
       // TimedSpriteComponent timedSpriteComponent = entityPart.GetComponent<TimedSpriteComponent>();
 
       // Build the character's visuals
-      (Guid shadowTex, Guid shadowRT) = await TexToTarget(
-        await CreateTexture(Guid.NewGuid(), "sprites.png"),
+      Task<Guid> shadowTask = TexToTarget(
+        await UseTexture("sprites.png"),
         await CreateRenderTarget(Guid.NewGuid()));
 
-      (Guid bodyTex, Guid bodyRT) = await TexToTarget(
-        await CreateTexture(Guid.NewGuid(), "body.png"),
+      Task<Guid> bodyTask = TexToTarget(
+        await UseTexture("body.png"),
         await CreateRenderTarget(Guid.NewGuid()));
 
-      (Guid headTex, Guid headRT) = await TexToTarget(
-        await CreateTexture(Guid.NewGuid(), "head19.png"),
+      Task<Guid> headTask = TexToTarget(
+        await UseTexture("head19.png"),
         await CreateRenderTarget(Guid.NewGuid()));
 
-      targetsComponent.targets.Add(new RenderTarget() { 
-        targetId=shadowRT, 
-        textureId=shadowTex,
-        targetName="shadow",
-        visible=true
-      });
+      Task<Guid> hatTask = TexToTarget(
+        await UseTexture("hat0.png"),
+        await CreateRenderTarget(Guid.NewGuid()));
 
-      targetsComponent.targets.Add(new RenderTarget() { 
-        targetId=bodyRT, 
-        textureId=bodyTex,
-        targetName="body",
-        visible=true
-      });
-      
-      targetsComponent.targets.Add(new RenderTarget() { 
-        targetId=headRT, 
-        textureId=headTex,
-        targetName="head",
-        visible=true
-      });
+      Task<Guid> shieldTask = TexToTarget(
+        await UseTexture("shield1.png"),
+        await CreateRenderTarget(Guid.NewGuid()));
 
-      // targetsComponent.targets.Add(new RenderTarget() { 
-      //   targetId=headRT,
-      //   textureId=headTex,
-      //   targetName="hat",
-      //   visible=false
+      Guid shadow = await shadowTask;
+      Guid body = await bodyTask;
+      Guid head = await headTask;
+      Guid hat = await hatTask;
+      Guid shield = await shieldTask;
+
+
+      // targetsComponent.targets.Add(new Renderable() { 
+      //   targetId=shadow, 
+      //   targetName="shadow",
+      //   visible=true,
+      //   layer=0
       // });
+
+      SpriteComponent bodySprite = new SpriteComponent(
+        [32,32],[0,0],1,11,
+        [[1],[4],[3],[3],[1],[1],[1],[3],[1],[1],[1]])
+      
+      bodySprite.hasStates = true;
+      bodySprite.loop = -1;
+      bodySprite.leftToRight = false;
+      bodySprite.frameDurations = {.2f};
+
+      RenderableStateComponent bodyStates = 
+      new RenderableStateComponent(new PositionComponent(0,32));
+
+      targetsComponent.targets["body"] = new Renderable() {
+        spriteComponent = bodySprite,
+        targetState = bodyStates,
+        targetId=body, 
+        visible=true,
+        layer=1,
+        x=10,
+        y=10
+      };
+
+      
+      
+      // targetsComponent.targets.Add(new Renderable() { 
+      //   targetId=head, 
+      //   targetName="head",
+      //   visible=true,
+      //   layer=2,
+      //   x=100,
+      //   y=100
+      // });
+
+      // targetsComponent.targets.Add(new Renderable() { 
+      //   targetId=hat,
+      //   targetName="hat",
+      //   visible=false,
+      //   layer=3
+      // });
+
+      // targetsComponent.targets.Add(new Renderable() { 
+      //   targetId=shield,
+      //   targetName="shield",
+      //   visible=false,
+      //   layer=4
+      // });
+
+      // targetsComponent.targets.Sort();
       #endif
 
 
